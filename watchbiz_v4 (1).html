@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch Business</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f4f1;--surface:#fff;--border:#e4e2dc;--border2:#ccc9c1;
+  --text:#18181a;--t2:#6b6860;--t3:#a8a49e;
+  --green:#1a7a4a;--green-bg:#edf7f1;
+  --red:#c0392b;--red-bg:#fdf0ee;
+  --blue:#1a5fa8;--blue-bg:#eef4fd;
+  --gold:#7a5f22;--gold-bg:#faf5e6;
+  --r:10px;--sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;height:52px;position:sticky;top:0;z-index:100;gap:0}
+.brand{font-weight:700;font-size:15px;margin-right:20px;letter-spacing:-.3px;white-space:nowrap}
+.nav-tabs{display:flex;gap:2px;flex:1;overflow-x:auto}
+.ntab{padding:6px 13px;border-radius:7px;cursor:pointer;color:var(--t2);font-size:13px;font-weight:500;transition:all .12s;white-space:nowrap;flex-shrink:0}
+.ntab:hover{background:var(--bg);color:var(--text)}.ntab.active{background:var(--text);color:#fff}
+.nav-right{display:flex;align-items:center;gap:8px;margin-left:12px;flex-shrink:0}
+.disp-ccy{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600;color:var(--t2)}
+.disp-ccy select{background:none;border:none;font-size:12px;font-weight:700;color:var(--text);cursor:pointer;outline:none;padding:0;font-family:inherit}
+.sync-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--t2)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--t3);flex-shrink:0}
+.sync-dot.ok{background:var(--green)}.sync-dot.err{background:var(--red)}.sync-dot.spin{background:var(--blue);animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.main{max-width:980px;margin:0 auto;padding:24px 20px}
+.page{display:none}.page.active{display:block}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.sec-title{font-size:17px;font-weight:700;letter-spacing:-.3px}
+.stats-row{display:grid;gap:12px;margin-bottom:22px}
+.s4{grid-template-columns:repeat(4,1fr)}.s3{grid-template-columns:repeat(3,1fr)}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh)}
+.stat-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--t3)}
+.stat-val{font-size:23px;font-weight:700;margin-top:4px;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.stat-sub{font-size:12px;color:var(--t2);margin-top:2px}
+.c-green{color:var(--green)}.c-red{color:var(--red)}.c-blue{color:var(--blue)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:16px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border)}
+.card-title{font-size:13px;font-weight:600}
+.card-body{padding:20px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:8px 14px;text-align:left;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);background:var(--bg);border-bottom:1px solid var(--border)}
+tbody td{padding:10px 14px;font-size:13px;color:var(--t2);border-bottom:1px solid var(--border)}
+tbody td:first-child{color:var(--text);font-weight:500}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafaf8}
+.tnum{font-variant-numeric:tabular-nums}.tact{display:flex;gap:5px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.bg{background:var(--green-bg);color:var(--green)}.br{background:var(--red-bg);color:var(--red)}
+.bb{background:var(--blue-bg);color:var(--blue)}.bgr{background:var(--bg);color:var(--t2);border:1px solid var(--border)}
+.bgl{background:var(--gold-bg);color:var(--gold)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:all .12s;white-space:nowrap}
+.btn-p{background:var(--text);color:#fff}.btn-p:hover{background:#333}
+.btn-g{background:transparent;color:var(--t2);border:1px solid var(--border2)}.btn-g:hover{background:var(--bg);color:var(--text)}
+.btn-lnk{background:none;color:var(--t3);border:none;padding:3px 6px;font-size:12px;cursor:pointer;font-family:inherit}.btn-lnk:hover{color:var(--red)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(2px)}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:14px;padding:26px;width:500px;max-width:96vw;box-shadow:0 20px 60px rgba(0,0,0,.18);max-height:92vh;overflow-y:auto}
+.modal h2{font-size:16px;font-weight:700;margin-bottom:20px}
+.mfoot{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.fg label{font-size:12px;font-weight:500;color:var(--t2)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+input,select,textarea{background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:8px 11px;color:var(--text);font-size:13px;font-family:inherit;outline:none;width:100%;transition:border-color .12s}
+input:focus,select:focus,textarea:focus{border-color:var(--text);background:#fff}
+input[readonly]{background:#f0ede8;color:var(--t2)}
+/* Amount + currency row */
+.amt-ccy{display:flex;gap:8px}
+.amt-ccy input{flex:1}
+.amt-ccy select{width:90px;flex-shrink:0}
+/* Converted preview */
+.conv-preview{font-size:12px;color:var(--t2);margin-top:3px;min-height:16px}
+/* P&L */
+.prow{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.prow:last-child{border-bottom:none}
+.prow.ptotal{border-top:2px solid var(--border2);border-bottom:none;padding-top:11px;margin-top:3px}
+.prow.ptotal .plbl{font-weight:700;color:var(--text)}.prow.ptotal .pval{font-weight:700;font-size:16px}
+.plbl{color:var(--t2);font-size:13px}.plbl.ind{padding-left:14px}
+.pval{font-variant-numeric:tabular-nums;font-size:13px;font-weight:500}
+.cf-in{color:var(--green)}.cf-out{color:var(--red)}
+.chart-wrap{position:relative;height:200px}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:10px}
+.alert-w{background:var(--gold-bg);color:var(--gold);border:1px solid #e8d89a}
+.alert-b{background:var(--blue-bg);color:var(--blue);border:1px solid #b5d0f0}
+.empty{padding:30px;text-align:center;color:var(--t3);font-size:13px}
+.ppreview{font-size:12px;margin-top:3px;min-height:18px}
+/* Recurring badge */
+.rec-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;background:var(--blue-bg);color:var(--blue)}
+/* Custom category input (shown when Other selected) */
+.custom-cat-wrap{margin-top:8px;display:none}
+.custom-cat-wrap.show{display:block}
+/* Setup screen */
+.setup-wrap{max-width:620px;margin:40px auto;padding:0 20px}
+.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px;box-shadow:var(--sh)}
+.setup-card h1{font-size:22px;font-weight:700;margin-bottom:6px}
+.setup-card .sub{color:var(--t2);font-size:14px;margin-bottom:32px}
+.step{display:flex;gap:16px;margin-bottom:24px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--text);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-body{flex:1}
+.step-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.step-desc{font-size:13px;color:var(--t2);line-height:1.6}
+.step-desc a{color:var(--blue);text-decoration:none}.step-desc a:hover{text-decoration:underline}
+.img-hint{background:var(--bg);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--t2);margin-top:8px;border:1px solid var(--border)}
+.url-input-wrap{display:flex;gap:8px;margin-top:10px}
+.url-input-wrap input{flex:1}
+.divider{border:none;border-top:1px solid var(--border);margin:28px 0}
+.loading{display:none;position:fixed;inset:0;background:rgba(245,244,241,.8);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.loading.show{display:flex}
+.spinner{width:32px;height:32px;border:3px solid var(--border2);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-msg{font-size:13px;color:var(--t2)}
+/* Rates banner */
+.rates-bar{background:var(--bg);border-bottom:1px solid var(--border);padding:5px 20px;font-size:11px;color:var(--t3);display:flex;gap:16px;align-items:center}
+@media(max-width:720px){
+  .s4,.two-col{grid-template-columns:1fr 1fr}
+  .s3{grid-template-columns:1fr 1fr}
+  .frow,.frow3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading"><div class="spinner"></div><div class="loading-msg" id="loading-msg">Loading…</div></div>
+
+<!-- RATES BAR -->
+<div class="rates-bar" id="rates-bar" style="display:none">
+  <span>Exchange rates (live):</span>
+  <span id="rate-usd-gel"></span>
+  <span id="rate-eur-gel"></span>
+  <span id="rate-usd-eur"></span>
+  <span style="margin-left:auto">Display: <strong id="disp-ccy-label">GEL</strong></span>
+</div>
+
+<nav class="topnav" id="topnav" style="display:none">
+  <span class="brand">⌚ Watch Biz</span>
+  <div class="nav-tabs">
+    <div class="ntab active" onclick="nav('overview')">Overview</div>
+    <div class="ntab" onclick="nav('watches')">Watches</div>
+    <div class="ntab" onclick="nav('sales')">Sales</div>
+    <div class="ntab" onclick="nav('expenses')">Expenses</div>
+    <div class="ntab" onclick="nav('cashflow')">Cash Flow</div>
+    <div class="ntab" onclick="nav('pnl')">P&amp;L</div>
+  </div>
+  <div class="nav-right">
+    <div class="disp-ccy">
+      Display:&nbsp;<select id="display-ccy-sel" onchange="setDisplayCcy(this.value)">
+        <option value="GEL">₾ GEL</option>
+        <option value="USD">$ USD</option>
+        <option value="EUR">€ EUR</option>
+      </select>
+    </div>
+    <div class="sync-btn"><div class="sync-dot ok" id="sync-dot"></div><span id="sync-label">Synced</span></div>
+    <button class="btn btn-g btn-sm" onclick="showSetup()">⚙</button>
+  </div>
+</nav>
+
+<!-- SETUP -->
+<div id="setup-screen">
+  <div class="setup-wrap">
+    <div class="setup-card">
+      <h1>Connect to Google Sheets</h1>
+      <p class="sub">One-time setup — your data saves permanently to a Google Sheet you own, accessible from any device.</p>
+      <div class="step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Create a blank Google Sheet</div><div class="step-desc">Go to <a href="https://sheets.google.com" target="_blank">sheets.google.com</a>, click <b>+</b> to create a blank spreadsheet, name it <b>Watch Business</b>.</div><div class="img-hint">💡 Make sure you're signed into your Google account.</div></div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Add the backend script</div><div class="step-desc">In your sheet click <b>Extensions → Apps Script</b>. Delete everything in the editor, paste the entire contents of <a href="./watchbiz_backend.gs" target="_blank">watchbiz_backend.gs</a>, and save.</div></div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-body"><div class="step-title">Run setupSheets once</div><div class="step-desc">Select <b>setupSheets</b> from the function dropdown → click <b>▶ Run</b> → accept permissions (click Advanced → Go to project → Allow).</div><div class="img-hint">💡 You'll see "✅ All sheets created!"</div></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><div class="step-title">Deploy as Web App</div><div class="step-desc"><b>Deploy → New deployment</b> → Type: Web app → Execute as: Me → Access: Anyone → Deploy → copy the URL.</div></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-body"><div class="step-title">Paste your Web App URL</div><div class="url-input-wrap"><input type="url" id="setup-url" placeholder="https://script.google.com/macros/s/…/exec"><button class="btn btn-p" onclick="connectSheet()">Connect →</button></div><div id="setup-error" style="color:var(--red);font-size:12px;margin-top:6px"></div></div></div>
+      <hr class="divider">
+      <div style="font-size:13px;color:var(--t2);text-align:center">Already connected? <a href="#" onclick="tryAutoConnect()" style="color:var(--blue)">Reconnect</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="main" id="app" style="display:none">
+
+<!-- OVERVIEW -->
+<div id="pg-overview" class="page active">
+  <div id="recurring-alerts"></div>
+  <div class="stats-row s4">
+    <div class="stat"><div class="stat-lbl">Revenue</div><div class="stat-val" id="ov-rev">—</div><div class="stat-sub" id="ov-rev-sub"></div></div>
+    <div class="stat"><div class="stat-lbl">Expenses</div><div class="stat-val c-red" id="ov-exp">—</div><div class="stat-sub" id="ov-exp-sub"></div></div>
+    <div class="stat"><div class="stat-lbl">Net Profit</div><div class="stat-val" id="ov-profit">—</div><div class="stat-sub" id="ov-margin"></div></div>
+    <div class="stat"><div class="stat-lbl">Cash Balance</div><div class="stat-val" id="ov-cash">—</div><div class="stat-sub" id="ov-cash-sub"></div></div>
+  </div>
+  <div id="ov-alerts"></div>
+  <div class="two-col">
+    <div class="card"><div class="card-hdr"><span class="card-title">Revenue vs Expenses</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-ov-bar"></canvas></div></div></div>
+    <div class="card"><div class="card-hdr"><span class="card-title">Revenue by Source</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-ov-source"></canvas></div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-title">Recent Sales</span><button class="btn btn-g btn-sm" onclick="nav('sales')">All →</button></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Watch</th><th>Source</th><th>Sold For</th><th>Profit</th></tr></thead><tbody id="ov-recent"></tbody></table></div>
+  </div>
+</div>
+
+<!-- WATCHES -->
+<div id="pg-watches" class="page">
+  <div class="sec-hdr"><div class="sec-title">Watches</div><button class="btn btn-p" onclick="openWatch()">+ Add Watch</button></div>
+  <div class="stats-row s3">
+    <div class="stat"><div class="stat-lbl">Models</div><div class="stat-val" id="w-models">0</div></div>
+    <div class="stat"><div class="stat-lbl">Total Units</div><div class="stat-val" id="w-units">0</div></div>
+    <div class="stat"><div class="stat-lbl">Stock Value (Cost)</div><div class="stat-val" id="w-value">—</div></div>
+  </div>
+  <div class="card">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Model</th><th>Ref</th><th>Watch Cost</th><th>Box</th><th>Bag</th><th>Transport</th><th>Total Cost</th><th>Sell Price</th><th>Stock</th><th>Alert</th><th></th></tr></thead>
+      <tbody id="watches-tbl"></tbody>
+    </table></div>
+    <div id="w-empty" class="empty" style="display:none">No watches yet.</div>
+  </div>
+</div>
+
+<!-- SALES -->
+<div id="pg-sales" class="page">
+  <div class="sec-hdr"><div class="sec-title">Sales</div><button class="btn btn-p" onclick="openSale()">+ Record Sale</button></div>
+  <div class="stats-row s4">
+    <div class="stat"><div class="stat-lbl">Revenue</div><div class="stat-val" id="s-rev">—</div></div>
+    <div class="stat"><div class="stat-lbl">Units Sold</div><div class="stat-val" id="s-units">0</div></div>
+    <div class="stat"><div class="stat-lbl">Gross Profit</div><div class="stat-val c-green" id="s-profit">—</div></div>
+    <div class="stat"><div class="stat-lbl">Avg Margin</div><div class="stat-val" id="s-margin">0%</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-title">All Sales</span><input type="text" id="s-search" placeholder="Search…" oninput="renderSales()" style="width:180px"></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Date</th><th>Watch</th><th>Qty</th><th>Original</th><th>Sold For</th><th>Cost</th><th>Profit</th><th>Margin</th><th>Source</th><th></th></tr></thead>
+      <tbody id="sales-tbl"></tbody>
+    </table></div>
+    <div id="s-empty" class="empty" style="display:none">No sales yet.</div>
+  </div>
+</div>
+
+<!-- EXPENSES -->
+<div id="pg-expenses" class="page">
+  <div class="sec-hdr"><div class="sec-title">Expenses</div><button class="btn btn-p" onclick="openExpense()">+ Add Expense</button></div>
+  <div class="stats-row s3">
+    <div class="stat"><div class="stat-lbl">Total Expenses</div><div class="stat-val c-red" id="e-total">—</div></div>
+    <div class="stat"><div class="stat-lbl">This Month</div><div class="stat-val" id="e-month">—</div></div>
+    <div class="stat"><div class="stat-lbl">Recurring / Month</div><div class="stat-val" id="e-recurring-total">—</div></div>
+  </div>
+  <div id="recurring-due"></div>
+  <div class="two-col">
+    <div class="card"><div class="card-hdr"><span class="card-title">By Category</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-exp-donut"></canvas></div></div></div>
+    <div class="card"><div class="card-hdr"><span class="card-title">Monthly Spending</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-exp-bar"></canvas></div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-title">All Expenses</span><input type="text" id="e-search" placeholder="Search…" oninput="renderExpenses()" style="width:180px"></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Original</th><th>Amount</th><th>Type</th><th></th></tr></thead>
+      <tbody id="expenses-tbl"></tbody>
+    </table></div>
+    <div id="e-empty" class="empty" style="display:none">No expenses yet.</div>
+  </div>
+</div>
+
+<!-- CASH FLOW -->
+<div id="pg-cashflow" class="page">
+  <div class="sec-hdr"><div class="sec-title">Cash Flow</div><button class="btn btn-p" onclick="openCF()">+ Add Entry</button></div>
+  <div class="stats-row s3">
+    <div class="stat" style="border-left:3px solid var(--green)"><div class="stat-lbl">Total In</div><div class="stat-val c-green" id="cf-in">—</div></div>
+    <div class="stat" style="border-left:3px solid var(--red)"><div class="stat-lbl">Total Out</div><div class="stat-val c-red" id="cf-out">—</div></div>
+    <div class="stat" style="border-left:3px solid var(--blue)"><div class="stat-lbl">Net Balance</div><div class="stat-val" id="cf-net">—</div></div>
+  </div>
+  <div class="two-col">
+    <div class="card"><div class="card-hdr"><span class="card-title">Running Balance</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-cf-line"></canvas></div></div></div>
+    <div class="card"><div class="card-hdr"><span class="card-title">In vs Out</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-cf-donut"></canvas></div></div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-title">Register</span><input type="text" id="cf-search" placeholder="Search…" oninput="renderCF()" style="width:180px"></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Type</th><th>Original</th><th>Amount</th><th>Balance</th><th></th></tr></thead>
+      <tbody id="cf-tbl"></tbody>
+    </table></div>
+    <div id="cf-empty" class="empty" style="display:none">No entries yet.</div>
+  </div>
+</div>
+
+<!-- P&L -->
+<div id="pg-pnl" class="page">
+  <div class="sec-title" style="margin-bottom:20px">Profit &amp; Loss</div>
+  <div class="two-col">
+    <div class="card"><div class="card-hdr"><span class="card-title">Income Statement</span></div><div class="card-body" id="pnl-body"></div></div>
+    <div>
+      <div class="card"><div class="card-hdr"><span class="card-title">Visual Summary</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-pnl-bar"></canvas></div></div></div>
+      <div class="card"><div class="card-hdr"><span class="card-title">Expense Breakdown</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-pnl-donut"></canvas></div></div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- MODAL: Watch -->
+<div class="overlay" id="m-watch">
+  <div class="modal">
+    <h2 id="mw-title">Add Watch</h2>
+    <input type="hidden" id="wid">
+    <div class="fg"><label>Model Name *</label><input id="w-name" placeholder="e.g. Submariner Date"></div>
+    <div class="fg"><label>Reference / SKU</label><input id="w-ref" placeholder="e.g. 126610LN"></div>
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:10px">Cost Breakdown</div>
+    <div class="frow">
+      <div class="fg"><label>Watch Cost *</label>
+        <div class="amt-ccy"><input id="w-watch-cost" type="number" step="0.01" placeholder="0.00" oninput="calcWatchCost()"><select id="w-cost-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+      </div>
+      <div class="fg"><label>Box Cost</label>
+        <div class="amt-ccy"><input id="w-box" type="number" step="0.01" placeholder="0.00" oninput="calcWatchCost()"><select id="w-box-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Bag / Strap Cost</label>
+        <div class="amt-ccy"><input id="w-bag" type="number" step="0.01" placeholder="0.00" oninput="calcWatchCost()"><select id="w-bag-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+      </div>
+      <div class="fg"><label>Transport / Import</label>
+        <div class="amt-ccy"><input id="w-transport" type="number" step="0.01" placeholder="0.00" oninput="calcWatchCost()"><select id="w-transport-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+      </div>
+    </div>
+    <div id="w-cost-total" style="font-size:13px;font-weight:600;background:var(--bg);border-radius:8px;padding:8px 12px;margin-bottom:13px;min-height:34px"></div>
+    <div class="frow">
+      <div class="fg"><label>Default Sell Price</label>
+        <div class="amt-ccy"><input id="w-price" type="number" step="0.01" placeholder="0.00"><select id="w-price-ccy"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+      </div>
+      <div class="fg"><label>Qty in Stock *</label><input id="w-qty" type="number" placeholder="0" min="0"></div>
+    </div>
+    <div class="fg"><label>Low Stock Alert (units)</label><input id="w-alert" type="number" placeholder="2" min="0"></div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeModal('m-watch')">Cancel</button>
+      <button class="btn btn-p" onclick="saveWatch()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Sale -->
+<div class="overlay" id="m-sale">
+  <div class="modal">
+    <h2 id="ms-title">Record Sale</h2>
+    <input type="hidden" id="sid">
+    <div class="fg"><label>Watch Model *</label><select id="s-watch" onchange="onSaleWatch()"><option value="">— select —</option></select></div>
+    <div class="frow">
+      <div class="fg">
+        <label>Sale Price * <span style="color:var(--t3);font-weight:400">(edit freely)</span></label>
+        <div class="amt-ccy">
+          <input id="s-price" type="number" step="0.01" placeholder="0.00" oninput="salePreview()">
+          <select id="s-price-ccy" onchange="salePreview()"><option>USD</option><option>GEL</option><option>EUR</option></select>
+        </div>
+      </div>
+      <div class="fg"><label>Cost (auto-filled)</label><input id="s-cost-disp" readonly placeholder="auto"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Qty Sold *</label><input id="s-qty" type="number" value="1" min="1" oninput="salePreview()"></div>
+      <div class="fg"><label>Date *</label><input id="s-date" type="date"></div>
+    </div>
+    <div class="fg"><label>Sold Via (source)</label>
+      <select id="s-source"><option>Instagram</option><option>Meta Ads</option><option>Facebook</option><option>Website</option><option>Walk-in</option><option>Referral</option><option>WhatsApp</option><option value="__other__">Other (type below)</option></select>
+      <div class="custom-cat-wrap" id="s-source-custom-wrap"><input id="s-source-custom" placeholder="Type source name…" style="margin-top:6px"></div>
+    </div>
+    <div class="ppreview" id="s-preview"></div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeModal('m-sale')">Cancel</button>
+      <button class="btn btn-p" onclick="saveSale()">Save Sale</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Expense -->
+<div class="overlay" id="m-expense">
+  <div class="modal">
+    <h2 id="me-title">Add Expense</h2>
+    <input type="hidden" id="eid">
+    <div class="fg"><label>Description *</label><input id="e-desc" placeholder="e.g. Instagram ads, rent, packaging…"></div>
+    <div class="frow">
+      <div class="fg"><label>Category *</label>
+        <select id="e-cat" onchange="onExpCatChange()">
+          <option>Marketing / Ads</option>
+          <option>Inventory / Purchase</option>
+          <option>Rent</option>
+          <option>Shipping</option>
+          <option>Salaries</option>
+          <option>Website / Tech</option>
+          <option>Packaging</option>
+          <option>Tax / Fees</option>
+          <option id="e-cat-other-opt" value="__other__">Other (type below)</option>
+        </select>
+        <div class="custom-cat-wrap" id="e-cat-custom-wrap"><input id="e-cat-custom" placeholder="Type category name…" style="margin-top:6px"></div>
+        <!-- saved custom categories injected here -->
+        <div id="e-saved-cats" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px"></div>
+      </div>
+      <div class="fg"><label>Amount *</label>
+        <div class="amt-ccy">
+          <input id="e-amount" type="number" step="0.01" placeholder="0.00" oninput="expConvPreview()">
+          <select id="e-ccy" onchange="expConvPreview()"><option>USD</option><option>GEL</option><option>EUR</option></select>
+        </div>
+        <div class="conv-preview" id="e-conv-preview"></div>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Date *</label><input id="e-date" type="date"></div>
+      <div class="fg"><label>Expense Type</label>
+        <select id="e-recur">
+          <option value="one-time">One-time</option>
+          <option value="monthly">Monthly (recurring)</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Notes (optional)</label><input id="e-notes" placeholder="Vendor, invoice #, free text…"></div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeModal('m-expense')">Cancel</button>
+      <button class="btn btn-p" onclick="saveExpense()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Cash Flow -->
+<div class="overlay" id="m-cf">
+  <div class="modal">
+    <h2 id="mcf-title">Add Cash Flow Entry</h2>
+    <input type="hidden" id="cfid">
+    <div class="fg"><label>Description *</label><input id="cf-desc" placeholder="e.g. Watch sale, rent payment…"></div>
+    <div class="frow">
+      <div class="fg"><label>Type *</label><select id="cf-type"><option value="in">➕ Money In</option><option value="out">➖ Money Out</option></select></div>
+      <div class="fg"><label>Category</label><select id="cf-cat"><option>Watch Sale</option><option>Inventory Purchase</option><option>Marketing / Ads</option><option>Rent</option><option>Salaries</option><option>Shipping</option><option>Owner Investment</option><option>Tax / Fees</option><option>Other</option></select></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Amount *</label>
+        <div class="amt-ccy">
+          <input id="cf-amount" type="number" step="0.01" placeholder="0.00" oninput="cfConvPreview()">
+          <select id="cf-ccy" onchange="cfConvPreview()"><option>USD</option><option>GEL</option><option>EUR</option></select>
+        </div>
+        <div class="conv-preview" id="cf-conv-preview"></div>
+      </div>
+      <div class="fg"><label>Date *</label><input id="cf-date" type="date"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeModal('m-cf')">Cancel</button>
+      <button class="btn btn-p" onclick="saveCF()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// CORE UTILS — must be first
+// ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const uid = () => Date.now()+''+ Math.floor(Math.random()*9999);
+const today = () => new Date().toISOString().split('T')[0];
+const thisMonth = () => new Date().toISOString().slice(0,7);
+function openModal(id){ $(id).classList.add('open'); }
+function closeModal(id){ $(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+const CCY_SYMBOLS = { USD:'$', GEL:'₾', EUR:'€' };
+let displayCcy = localStorage.getItem('wbiz_disp_ccy') || 'GEL';
+let rates = { USD_GEL: 2.72, EUR_GEL: 2.95, USD_EUR: 0.92 }; // fallback defaults
+
+async function fetchRates() {
+  try {
+    const r = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const d = await r.json();
+    rates.USD_GEL = d.rates.GEL || rates.USD_GEL;
+    rates.EUR_GEL = d.rates.GEL / d.rates.EUR || rates.EUR_GEL;
+    rates.USD_EUR = d.rates.EUR || rates.USD_EUR;
+    localStorage.setItem('wbiz_rates', JSON.stringify({rates, ts: Date.now()}));
+  } catch(e) {
+    // use cached if available
+    const cached = localStorage.getItem('wbiz_rates');
+    if(cached) { try { rates = JSON.parse(cached).rates; } catch(e2){} }
+  }
+  updateRatesBar();
+}
+
+function updateRatesBar() {
+  $('rate-usd-gel').textContent = `1 USD = ${rates.USD_GEL.toFixed(2)} GEL`;
+  $('rate-eur-gel').textContent = `1 EUR = ${rates.EUR_GEL.toFixed(2)} GEL`;
+  $('rate-usd-eur').textContent = `1 USD = ${rates.USD_EUR.toFixed(2)} EUR`;
+  $('disp-ccy-label').textContent = displayCcy;
+}
+
+// Convert any amount in fromCcy to displayCcy
+function toDisplay(amount, fromCcy) {
+  if(fromCcy === displayCcy) return amount;
+  // first convert to GEL as common base
+  let gel;
+  if(fromCcy === 'USD') gel = amount * rates.USD_GEL;
+  else if(fromCcy === 'EUR') gel = amount * rates.EUR_GEL;
+  else gel = amount; // already GEL
+  // then from GEL to displayCcy
+  if(displayCcy === 'GEL') return gel;
+  if(displayCcy === 'USD') return gel / rates.USD_GEL;
+  if(displayCcy === 'EUR') return gel / rates.EUR_GEL;
+  return gel;
+}
+
+function sym() { return CCY_SYMBOLS[displayCcy]; }
+function fmtD(amount, fromCcy) { return sym() + Math.round(toDisplay(amount, fromCcy||displayCcy)).toLocaleString(); }
+function fmtAbs(n) { return sym() + Math.round(Math.abs(n||0)).toLocaleString(); }
+function convPreviewText(amount, fromCcy) {
+  if(!amount || fromCcy === displayCcy) return '';
+  return `≈ ${fmtD(amount, fromCcy)} ${displayCcy}`;
+}
+
+function setDisplayCcy(c) {
+  displayCcy = c;
+  localStorage.setItem('wbiz_disp_ccy', c);
+  $('disp-ccy-label').textContent = c;
+  document.querySelectorAll('#display-ccy-sel option').forEach(o => o.selected = o.value === c);
+  renderPage(currentPage);
+}
+
+// ─────────────────────────────────────────────────────────────
+// CUSTOM CATEGORIES
+// ─────────────────────────────────────────────────────────────
+let customCats = JSON.parse(localStorage.getItem('wbiz_custom_cats') || '[]');
+let customSources = JSON.parse(localStorage.getItem('wbiz_custom_sources') || '[]');
+
+function saveCustomCats() { localStorage.setItem('wbiz_custom_cats', JSON.stringify(customCats)); }
+function saveCustomSources() { localStorage.setItem('wbiz_custom_sources', JSON.stringify(customSources)); }
+
+function onExpCatChange() {
+  const val = $('e-cat').value;
+  const wrap = $('e-cat-custom-wrap');
+  wrap.classList.toggle('show', val === '__other__');
+  renderSavedCatChips();
+}
+
+function renderSavedCatChips() {
+  const container = $('e-saved-cats');
+  if(!customCats.length) { container.innerHTML = ''; return; }
+  container.innerHTML = '<span style="font-size:11px;color:var(--t3);width:100%">Saved custom:</span>' +
+    customCats.map(c => `<span onclick="pickCustomCat('${c}')" style="cursor:pointer;padding:2px 8px;border-radius:20px;font-size:11px;background:var(--bg);border:1px solid var(--border2);color:var(--t2)">${c}</span>`).join('');
+}
+
+function pickCustomCat(cat) {
+  // temporarily add to select
+  let opt = document.querySelector(`#e-cat option[value="${cat}"]`);
+  if(!opt) {
+    opt = document.createElement('option');
+    opt.value = cat; opt.textContent = cat;
+    $('e-cat').insertBefore(opt, document.querySelector('#e-cat-other-opt'));
+  }
+  $('e-cat').value = cat;
+  $('e-cat-custom-wrap').classList.remove('show');
+}
+
+function getExpCat() {
+  const sel = $('e-cat').value;
+  if(sel === '__other__') {
+    const custom = $('e-cat-custom').value.trim();
+    if(!custom) return null;
+    if(!customCats.includes(custom)) { customCats.push(custom); saveCustomCats(); }
+    return custom;
+  }
+  return sel;
+}
+
+// Source "other" handling — wired up after DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  const srcSel = document.getElementById('s-source');
+  if(srcSel) srcSel.addEventListener('change', function() {
+    document.getElementById('s-source-custom-wrap').classList.toggle('show', this.value === '__other__');
+  });
+});
+
+function getSaleSource() {
+  const sel = $('s-source').value;
+  if(sel === '__other__') {
+    const custom = $('s-source-custom').value.trim();
+    if(!custom) return 'Other';
+    if(!customSources.includes(custom)) { customSources.push(custom); saveCustomSources(); }
+    return custom;
+  }
+  return sel;
+}
+
+function setSaleSourceSelect(val) {
+  const sel = $('s-source');
+  // check if val exists in options
+  const exists = Array.from(sel.options).some(o => o.value === val);
+  if(exists) { sel.value = val; }
+  else {
+    // add it
+    const opt = document.createElement('option');
+    opt.value = val; opt.textContent = val;
+    sel.insertBefore(opt, sel.querySelector('option[value="__other__"]'));
+    sel.value = val;
+  }
+  $('s-source-custom-wrap').classList.remove('show');
+}
+
+// ─────────────────────────────────────────────────────────────
+// RECURRING EXPENSES
+// ─────────────────────────────────────────────────────────────
+async function checkRecurringDue() {
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const thisMonthStr = todayStr.slice(0,7);
+  const recurring = db.expenses.filter(e => e.recur === 'monthly');
+  const autoAdded = [];
+
+  for(const tmpl of recurring) {
+    // Get the day-of-month from the original expense date (e.g. if saved on the 15th, fire on the 15th)
+    const origDay = tmpl.date ? parseInt(tmpl.date.slice(8,10)) : 1;
+    const todayDay = now.getDate();
+
+    // Check if already logged this month
+    const alreadyLogged = db.expenses.some(x =>
+      x.desc === tmpl.desc &&
+      x.recur !== 'monthly' &&
+      x.date && x.date.startsWith(thisMonthStr)
+    );
+
+    // Auto-add if: today's day >= original day AND not yet logged this month
+    if(!alreadyLogged && todayDay >= origDay) {
+      const date = thisMonthStr + '-' + String(origDay).padStart(2,'0');
+      const entry = {
+        id: uid(), desc: tmpl.desc, cat: tmpl.cat,
+        amount: tmpl.amount, ccy: tmpl.ccy||displayCcy,
+        date, recur: 'one-time', notes: 'Auto-added (monthly recurring)'
+      };
+      try {
+        await apiInsert('expenses', entry);
+        db.expenses.push(entry);
+        const cfEntry = { id:uid(), desc:tmpl.desc, type:'out', cat:tmpl.cat, amount:tmpl.amount, ccy:tmpl.ccy||displayCcy, date };
+        await apiInsert('cashflow', cfEntry);
+        db.cashflow.push(cfEntry);
+        autoAdded.push(tmpl.desc);
+      } catch(e) { console.error('Auto-add failed for', tmpl.desc, e); }
+    }
+  }
+
+  // Show a quiet confirmation if anything was auto-added
+  const el = $('recurring-alerts');
+  if(autoAdded.length && el) {
+    el.innerHTML = `<div class="alert alert-b">✅ Auto-added ${autoAdded.length} recurring expense${autoAdded.length>1?'s':''} for this month: <b>${autoAdded.join(', ')}</b></div>`;
+    setTimeout(() => { if(el) el.innerHTML = ''; }, 6000);
+  } else if(el) { el.innerHTML = ''; }
+
+  const el2 = $('recurring-due');
+  if(el2) el2.innerHTML = '';
+}
+
+// ─────────────────────────────────────────────────────────────
+// CONVERSION PREVIEWS IN FORMS
+// ─────────────────────────────────────────────────────────────
+function expConvPreview() {
+  const a = parseFloat($('e-amount').value)||0, c = $('e-ccy').value;
+  $('e-conv-preview').textContent = convPreviewText(a, c);
+}
+function cfConvPreview() {
+  const a = parseFloat($('cf-amount').value)||0, c = $('cf-ccy').value;
+  $('cf-conv-preview').textContent = convPreviewText(a, c);
+}
+function calcWatchCost() {
+  const fields = [['w-watch-cost','w-cost-ccy'],['w-box','w-box-ccy'],['w-bag','w-bag-ccy'],['w-transport','w-transport-ccy']];
+  let total = 0;
+  fields.forEach(([inp,sel]) => { total += toDisplay(parseFloat($(inp).value)||0, $(sel).value); });
+  $('w-cost-total').textContent = total > 0 ? `Total cost: ${sym()}${Math.round(total).toLocaleString()} ${displayCcy}` : '';
+}
+
+// ─────────────────────────────────────────────────────────────
+// CONFIG & STATE
+// ─────────────────────────────────────────────────────────────
+const URL_KEY = 'wbiz_sheet_url';
+let SHEET_URL = localStorage.getItem(URL_KEY) || '';
+let currentPage = 'overview';
+let db = { watches:[], sales:[], expenses:[], cashflow:[] };
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const COLORS = ['#18181a','#7a5f22','#1a7a4a','#1a5fa8','#c0392b','#7b3fa0','#0e7490','#b45309','#374151'];
+
+// ─────────────────────────────────────────────────────────────
+// GOOGLE SHEETS API
+// ─────────────────────────────────────────────────────────────
+function setSyncStatus(state, msg){ const d=$('sync-dot'),l=$('sync-label');if(!d)return;d.className='sync-dot '+state;l.textContent=msg; }
+async function sheetGet(sheet){
+  const url = SHEET_URL+'?action=getAll&sheet='+sheet+'&t='+Date.now();
+  const r = await fetch(url, {redirect:'follow'});
+  if(!r.ok) throw new Error('Network error '+r.status);
+  const d = await r.json();
+  if(d.error) throw new Error(d.error);
+  return Array.isArray(d)?d:[];
+}
+async function sheetPost(body){
+  const r = await fetch(SHEET_URL, {method:'POST', body:JSON.stringify(body), redirect:'follow'});
+  if(!r.ok) throw new Error('Network error '+r.status);
+  const d = await r.json();
+  if(d.error) throw new Error(d.error);
+  return d;
+}
+function coerce(obj){ const nums=['watchCost','boxCost','bagCost','transportCost','cost','price','qty','alert','amount'];const o={};for(const k in obj){o[k]=nums.includes(k)?(parseFloat(obj[k])||0):obj[k];}return o; }
+async function loadAll(){ showLoading('Loading your data…');try{const[w,s,e,c]=await Promise.all([sheetGet('watches'),sheetGet('sales'),sheetGet('expenses'),sheetGet('cashflow')]);db.watches=w.map(coerce);db.sales=s.map(coerce);db.expenses=e.map(coerce);db.cashflow=c.map(coerce);setSyncStatus('ok','Synced');}catch(e){setSyncStatus('err','Error');alert('Could not load data: '+e.message);}hideLoading(); }
+async function apiInsert(sheet,row){ setSyncStatus('spin','Saving…');try{await sheetPost({action:'insert',sheet,row});setSyncStatus('ok','Saved');}catch(e){setSyncStatus('err','Error');throw e;} }
+async function apiUpdate(sheet,id,row){ setSyncStatus('spin','Saving…');try{await sheetPost({action:'update',sheet,id,row});setSyncStatus('ok','Saved');}catch(e){setSyncStatus('err','Error');throw e;} }
+async function apiDelete(sheet,id){ setSyncStatus('spin','Deleting…');try{await sheetPost({action:'delete',sheet,id});setSyncStatus('ok','Deleted');}catch(e){setSyncStatus('err','Error');throw e;} }
+
+// ─────────────────────────────────────────────────────────────
+// SETUP & CONNECTION
+// ─────────────────────────────────────────────────────────────
+function showLoading(msg){ $('loading-msg').textContent=msg||'Loading…';$('loading').classList.add('show'); }
+function hideLoading(){ $('loading').classList.remove('show'); }
+async function connectSheet(){
+  const url=$('setup-url').value.trim();
+  if(!url.includes('script.google.com')){
+    $('setup-error').textContent='That doesn\'t look like a Google Apps Script URL. It should start with https://script.google.com/macros/s/...';
+    return;
+  }
+  SHEET_URL=url;
+  $('setup-error').textContent='';
+  showLoading('Testing connection…');
+  try{
+    await sheetGet('watches');
+    localStorage.setItem(URL_KEY,url);
+    hideLoading();
+    launchApp();
+  } catch(e){
+    hideLoading();
+    SHEET_URL='';
+    $('setup-error').textContent='❌ Could not connect: '+e.message+'. Check: (1) Deployed as Web App, (2) "Execute as: Me", (3) "Who has access: Anyone", (4) you clicked Deploy after making changes.';
+  }
+}
+async function tryAutoConnect(){
+  if(!SHEET_URL){showSetup();return;}
+  showLoading('Connecting…');
+  try{await sheetGet('watches');hideLoading();launchApp();}
+  catch(e){hideLoading();showSetup();}
+}
+function showSetup(){ $('setup-screen').style.display='';$('app').style.display='none';$('topnav').style.display='none';$('rates-bar').style.display='none';if(SHEET_URL)$('setup-url').value=SHEET_URL; }
+async function launchApp(){
+  $('setup-screen').style.display='none';$('topnav').style.display='flex';$('app').style.display='block';$('rates-bar').style.display='flex';
+  document.querySelector('#display-ccy-sel').value = displayCcy;
+  await fetchRates();
+  await loadAll();
+  // inject any saved custom categories into expense select
+  customCats.forEach(c => {
+    if(!document.querySelector(`#e-cat option[value="${c}"]`)) {
+      const opt=document.createElement('option');opt.value=c;opt.textContent=c;
+      $('e-cat').insertBefore(opt,document.querySelector('#e-cat-other-opt'));
+    }
+  });
+  renderPage('overview');
+}
+
+// ─────────────────────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────────────────────
+function nav(id){
+  currentPage=id;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
+  $('pg-'+id).classList.add('active');
+  document.querySelectorAll('.ntab').forEach(t=>{if(t.textContent.toLowerCase().replace(/[& ]/g,'').startsWith(id.replace('cashflow','cash').slice(0,4)))t.classList.add('active');});
+  renderPage(id);
+}
+function renderPage(id){
+  if(id==='overview')renderOverview();if(id==='watches')renderWatches();
+  if(id==='sales')renderSales();if(id==='expenses')renderExpenses();
+  if(id==='cashflow')renderCF();if(id==='pnl')renderPnL();
+}
+
+// ─────────────────────────────────────────────────────────────
+// COMPUTED — all converted to displayCcy
+// ─────────────────────────────────────────────────────────────
+function totalRev(){ return db.sales.reduce((s,x)=>s+toDisplay(x.price*x.qty, x.priceCcy||displayCcy),0); }
+function totalSoldCost(){ return db.sales.reduce((s,x)=>s+toDisplay(x.cost*x.qty, x.costCcy||displayCcy),0); }
+function totalExp(){ return db.expenses.reduce((s,e)=>s+toDisplay(e.amount, e.ccy||displayCcy),0); }
+function cfInTotal(){ return db.cashflow.filter(c=>c.type==='in').reduce((s,c)=>s+toDisplay(c.amount, c.ccy||displayCcy),0); }
+function cfOutTotal(){ return db.cashflow.filter(c=>c.type==='out').reduce((s,c)=>s+toDisplay(c.amount, c.ccy||displayCcy),0); }
+function stockVal(){ return db.watches.reduce((s,w)=>s+toDisplay(w.cost*w.qty, w.costCcy||displayCcy),0); }
+
+// ─────────────────────────────────────────────────────────────
+// CHARTS
+// ─────────────────────────────────────────────────────────────
+const charts={};
+function mkChart(id,cfg){if(charts[id])charts[id].destroy();const c=$(id);if(!c)return;charts[id]=new Chart(c,cfg);}
+const gridX={grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#a8a49e',font:{size:11}}};
+const gridY={grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#a8a49e',font:{size:11},callback:v=>sym()+v.toLocaleString()}};
+
+// ─────────────────────────────────────────────────────────────
+// OVERVIEW
+// ─────────────────────────────────────────────────────────────
+function renderOverview(){
+  const rev=totalRev(),exp=totalExp(),profit=rev-exp;
+  const margin=rev>0?(profit/rev*100).toFixed(1):0;
+  const bal=cfInTotal()-cfOutTotal();
+  $('ov-rev').textContent=fmtAbs(rev);$('ov-rev-sub').textContent=db.sales.length+' sale'+(db.sales.length!==1?'s':'');
+  $('ov-exp').textContent=fmtAbs(exp);$('ov-exp-sub').textContent=db.expenses.length+' entr'+(db.expenses.length!==1?'ies':'y');
+  $('ov-profit').textContent=fmtAbs(profit);$('ov-profit').className='stat-val '+(profit>=0?'c-green':'c-red');
+  $('ov-margin').textContent=margin+'% margin';
+  $('ov-cash').textContent=fmtAbs(bal);$('ov-cash').className='stat-val '+(bal>=0?'c-blue':'c-red');
+  $('ov-cash-sub').textContent=bal>=0?'positive':'negative';
+  const low=db.watches.filter(w=>w.alert>0&&w.qty<=w.alert);
+  $('ov-alerts').innerHTML=low.length?`<div class="alert alert-w">⚠ Low stock: ${low.map(w=>`<b>${w.name}</b> (${w.qty} left)`).join(', ')}</div>`:'';
+  checkRecurringDue();
+  const mmap={};
+  db.sales.forEach(s=>{const m=s.date?s.date.slice(0,7):'';if(!m)return;mmap[m]=(mmap[m]||{r:0,e:0});mmap[m].r+=toDisplay(s.price*s.qty,s.priceCcy||displayCcy);});
+  db.expenses.forEach(e=>{const m=e.date?e.date.slice(0,7):'';if(!m)return;mmap[m]=(mmap[m]||{r:0,e:0});mmap[m].e+=toDisplay(e.amount,e.ccy||displayCcy);});
+  const mks=Object.keys(mmap).sort();
+  mkChart('ch-ov-bar',{type:'bar',data:{labels:mks.map(m=>MONTHS[parseInt(m.slice(5))-1]),datasets:[
+    {label:'Revenue',data:mks.map(m=>Math.round(mmap[m].r)),backgroundColor:'rgba(24,24,26,.75)',borderRadius:4},
+    {label:'Expenses',data:mks.map(m=>Math.round(mmap[m].e)),backgroundColor:'rgba(192,57,43,.5)',borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#6b6860',font:{size:11},boxWidth:10}}},scales:{x:gridX,y:gridY}}});
+  const srcMap={};
+  db.sales.forEach(s=>{const src=s.source||'Other';srcMap[src]=(srcMap[src]||0)+toDisplay(s.price*s.qty,s.priceCcy||displayCcy);});
+  const srcs=Object.keys(srcMap);
+  mkChart('ch-ov-source',{type:'doughnut',data:{labels:srcs,datasets:[{data:srcs.map(s=>Math.round(srcMap[s])),backgroundColor:COLORS,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{color:'#6b6860',font:{size:11},boxWidth:10,padding:8}}}}});
+  const srcB={'Instagram':'bb','Meta Ads':'bb','Facebook':'bb','Website':'bg','Walk-in':'bgl','Referral':'bg','WhatsApp':'bg'};
+  const recent=[...db.sales].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,6);
+  $('ov-recent').innerHTML=recent.map(s=>{
+    const p=toDisplay(s.price-s.cost,s.priceCcy||displayCcy)*s.qty;
+    return `<tr><td>${s.watchName}</td><td><span class="badge ${srcB[s.source]||'bgr'}">${s.source||'—'}</span></td><td class="tnum">${fmtAbs(toDisplay(s.price*s.qty,s.priceCcy||displayCcy))}</td><td class="tnum" style="color:${p>=0?'var(--green)':'var(--red)'}">${fmtAbs(p)}</td></tr>`;
+  }).join('')||`<tr><td colspan="4" class="empty">No sales yet.</td></tr>`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// WATCHES
+// ─────────────────────────────────────────────────────────────
+function renderWatches(){
+  $('w-models').textContent=db.watches.length;
+  $('w-units').textContent=db.watches.reduce((s,w)=>s+w.qty,0);
+  $('w-value').textContent=fmtAbs(stockVal());
+  if(!db.watches.length){$('w-empty').style.display='';$('watches-tbl').innerHTML='';return;}
+  $('w-empty').style.display='none';
+  $('watches-tbl').innerHTML=db.watches.map(w=>{
+    const low=w.alert>0&&w.qty<=w.alert;
+    const ccy=w.costCcy||displayCcy;
+    return `<tr>
+      <td>${w.name}</td><td style="color:var(--t2)">${w.ref||'—'}</td>
+      <td class="tnum">${w.watchCost?fmtD(w.watchCost,w.watchCostCcy||ccy):'—'}</td>
+      <td class="tnum" style="color:var(--t2)">${w.boxCost?fmtD(w.boxCost,w.boxCostCcy||ccy):'—'}</td>
+      <td class="tnum" style="color:var(--t2)">${w.bagCost?fmtD(w.bagCost,w.bagCostCcy||ccy):'—'}</td>
+      <td class="tnum" style="color:var(--t2)">${w.transportCost?fmtD(w.transportCost,w.transportCostCcy||ccy):'—'}</td>
+      <td class="tnum" style="font-weight:700">${fmtD(w.cost,ccy)}</td>
+      <td class="tnum">${fmtD(w.price,w.priceCcy||ccy)}</td>
+      <td><span class="badge ${low?'br':'bg'}">${w.qty}</span></td>
+      <td style="color:var(--t3)">${w.alert}</td>
+      <td><div class="tact"><button class="btn btn-g btn-sm" onclick="editWatch('${w.id}')">Edit</button><button class="btn-lnk" onclick="delWatch('${w.id}')">Del</button></div></td>
+    </tr>`;
+  }).join('');
+}
+function openWatch(){
+  $('mw-title').textContent='Add Watch';$('wid').value='';
+  ['w-name','w-ref','w-watch-cost','w-box','w-bag','w-transport','w-price','w-qty'].forEach(id=>$(id).value='');
+  $('w-alert').value='2';$('w-cost-total').textContent='';
+  openModal('m-watch');
+}
+function editWatch(id){
+  const w=db.watches.find(x=>String(x.id)===String(id));if(!w)return;
+  $('mw-title').textContent='Edit Watch';$('wid').value=w.id;
+  $('w-name').value=w.name;$('w-ref').value=w.ref||'';
+  $('w-watch-cost').value=w.watchCost||'';$('w-cost-ccy').value=w.watchCostCcy||'USD';
+  $('w-box').value=w.boxCost||'';$('w-box-ccy').value=w.boxCostCcy||'USD';
+  $('w-bag').value=w.bagCost||'';$('w-bag-ccy').value=w.bagCostCcy||'USD';
+  $('w-transport').value=w.transportCost||'';$('w-transport-ccy').value=w.transportCostCcy||'USD';
+  $('w-price').value=w.price||'';$('w-price-ccy').value=w.priceCcy||'USD';
+  $('w-qty').value=w.qty;$('w-alert').value=w.alert||2;
+  calcWatchCost();openModal('m-watch');
+}
+async function saveWatch(){
+  const name=$('w-name').value.trim();
+  const watchCost=parseFloat($('w-watch-cost').value)||0;
+  const qty=parseInt($('w-qty').value);
+  if(!name||!watchCost||isNaN(qty))return alert('Name, watch cost and qty required.');
+  const boxCost=parseFloat($('w-box').value)||0,bagCost=parseFloat($('w-bag').value)||0,transportCost=parseFloat($('w-transport').value)||0;
+  // total cost in displayCcy
+  const cost=Math.round(
+    toDisplay(watchCost,$('w-cost-ccy').value)+toDisplay(boxCost,$('w-box-ccy').value)+
+    toDisplay(bagCost,$('w-bag-ccy').value)+toDisplay(transportCost,$('w-transport-ccy').value)
+  );
+  const eid=String($('wid').value);
+  const w={id:eid||uid(),name,ref:$('w-ref').value.trim(),
+    watchCost,watchCostCcy:$('w-cost-ccy').value,
+    boxCost,boxCostCcy:$('w-box-ccy').value,
+    bagCost,bagCostCcy:$('w-bag-ccy').value,
+    transportCost,transportCostCcy:$('w-transport-ccy').value,
+    costCcy:displayCcy,cost,
+    price:parseFloat($('w-price').value)||0,priceCcy:$('w-price-ccy').value,
+    qty,alert:parseInt($('w-alert').value)||2};
+  try{if(eid){await apiUpdate('watches',eid,w);db.watches=db.watches.map(x=>String(x.id)===eid?w:x);}else{await apiInsert('watches',w);db.watches.push(w);}closeModal('m-watch');renderWatches();}
+  catch(e){alert('Save failed: '+e.message);}
+}
+async function delWatch(id){if(!confirm('Delete?'))return;try{await apiDelete('watches',id);db.watches=db.watches.filter(x=>String(x.id)!==String(id));renderWatches();}catch(e){alert('Delete failed: '+e.message);}}
+
+// ─────────────────────────────────────────────────────────────
+// SALES
+// ─────────────────────────────────────────────────────────────
+function fillSaleSelect(){ $('s-watch').innerHTML='<option value="">— select —</option>'+db.watches.map(w=>`<option value="${w.id}">${w.name}${w.ref?' ('+w.ref+')':''} · ${w.qty} left</option>`).join(''); }
+function onSaleWatch(){
+  const w=db.watches.find(x=>String(x.id)===String($('s-watch').value));
+  if(w){
+    $('s-cost-disp').value=fmtD(w.cost,w.costCcy||displayCcy);
+    $('s-price').value=w.price;$('s-price-ccy').value=w.priceCcy||'USD';
+  }
+  salePreview();
+}
+function salePreview(){
+  const price=parseFloat($('s-price').value)||0;
+  const priceCcy=$('s-price-ccy').value;
+  const wId=String($('s-watch').value);
+  const w=db.watches.find(x=>String(x.id)===wId);
+  if(!price||!w){$('s-preview').textContent='';return;}
+  const qty=parseInt($('s-qty').value)||1;
+  const revenueDisp=toDisplay(price*qty,priceCcy);
+  const costDisp=toDisplay(w.cost*qty,w.costCcy||displayCcy);
+  const profit=revenueDisp-costDisp;
+  const margin=revenueDisp>0?((profit/revenueDisp)*100).toFixed(1):0;
+  const el=$('s-preview');
+  el.textContent=profit>=0?`✓ Profit: ${fmtAbs(profit)}  (${margin}% margin)`:`⚠ Loss: ${fmtAbs(profit)}`;
+  el.style.color=profit>=0?'var(--green)':'var(--red)';
+}
+function openSale(){
+  $('ms-title').textContent='Record Sale';$('sid').value='';
+  fillSaleSelect();$('s-watch').value='';$('s-cost-disp').value='';$('s-price').value='';
+  $('s-qty').value='1';$('s-date').value=today();
+  $('s-source').value='Instagram';$('s-source-custom-wrap').classList.remove('show');$('s-preview').textContent='';
+  openModal('m-sale');
+}
+function editSale(id){
+  const s=db.sales.find(x=>String(x.id)===String(id));if(!s)return;
+  $('ms-title').textContent='Edit Sale';$('sid').value=s.id;
+  fillSaleSelect();$('s-watch').value=s.watchId;
+  const w=db.watches.find(x=>String(x.id)===String(s.watchId));
+  $('s-cost-disp').value=w?fmtD(w.cost,w.costCcy||displayCcy):'';
+  $('s-price').value=s.price;$('s-price-ccy').value=s.priceCcy||'USD';
+  $('s-qty').value=s.qty;$('s-date').value=s.date;
+  setSaleSourceSelect(s.source||'Instagram');salePreview();openModal('m-sale');
+}
+async function saveSale(){
+  const wId=String($('s-watch').value);
+  const watch=db.watches.find(x=>String(x.id)===wId);
+  const price=parseFloat($('s-price').value);
+  const priceCcy=$('s-price-ccy').value;
+  const qty=parseInt($('s-qty').value)||1;
+  const date=$('s-date').value;
+  if(!watch||isNaN(price)||!date)return alert('Select a watch, enter price and date.');
+  const source=getSaleSource();
+  const eid=String($('sid').value);
+  const sale={id:eid||uid(),watchId:wId,watchName:watch.name,
+    cost:watch.cost,costCcy:watch.costCcy||displayCcy,
+    price,priceCcy,qty,date,source};
+  try{
+    if(eid){await apiUpdate('sales',eid,sale);db.sales=db.sales.map(x=>String(x.id)===eid?sale:x);}
+    else{
+      await apiInsert('sales',sale);db.sales.push(sale);
+      watch.qty=Math.max(0,watch.qty-qty);await apiUpdate('watches',wId,watch);
+      const cfEntry={id:uid(),desc:'Sale: '+watch.name+(qty>1?' x'+qty:''),type:'in',cat:'Watch Sale',amount:price*qty,ccy:priceCcy,date};
+      await apiInsert('cashflow',cfEntry);db.cashflow.push(cfEntry);
+    }
+    closeModal('m-sale');renderSales();
+  }catch(e){alert('Save failed: '+e.message);}
+}
+async function delSale(id){if(!confirm('Delete?'))return;try{await apiDelete('sales',id);db.sales=db.sales.filter(x=>String(x.id)!==String(id));renderSales();}catch(e){alert('Failed: '+e.message);}}
+function renderSales(){
+  const rev=totalRev(),cost=totalSoldCost(),profit=rev-cost;
+  const units=db.sales.reduce((s,x)=>s+x.qty,0);
+  const margin=rev>0?((profit/rev)*100).toFixed(1):0;
+  $('s-rev').textContent=fmtAbs(rev);$('s-units').textContent=units;
+  $('s-profit').textContent=fmtAbs(profit);$('s-profit').className='stat-val '+(profit>=0?'c-green':'c-red');
+  $('s-margin').textContent=margin+'%';
+  const q=($('s-search')||{}).value||'';
+  const srcB={'Instagram':'bb','Meta Ads':'bb','Facebook':'bb','Website':'bg','Walk-in':'bgl','Referral':'bg','WhatsApp':'bg'};
+  const f=[...db.sales].filter(s=>s.watchName.toLowerCase().includes(q.toLowerCase())).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!f.length){$('s-empty').style.display='';$('sales-tbl').innerHTML='';return;}
+  $('s-empty').style.display='none';
+  $('sales-tbl').innerHTML=f.map(s=>{
+    const priceCcy=s.priceCcy||displayCcy,costCcy=s.costCcy||displayCcy;
+    const revD=toDisplay(s.price*s.qty,priceCcy),costD=toDisplay(s.cost*s.qty,costCcy);
+    const p=revD-costD,m=revD>0?((p/revD)*100).toFixed(1):0;
+    const origLabel=CCY_SYMBOLS[priceCcy]+Math.round(s.price*s.qty).toLocaleString()+' '+priceCcy;
+    return `<tr>
+      <td>${s.date}</td><td>${s.watchName}</td><td>${s.qty}</td>
+      <td style="color:var(--t3);font-size:12px">${origLabel}</td>
+      <td class="tnum">${fmtAbs(revD)}</td>
+      <td class="tnum">${fmtAbs(costD)}</td>
+      <td class="tnum" style="color:${p>=0?'var(--green)':'var(--red)'}">${fmtAbs(p)}</td>
+      <td style="color:var(--t2)">${m}%</td>
+      <td><span class="badge ${srcB[s.source]||'bgr'}">${s.source||'—'}</span></td>
+      <td><div class="tact"><button class="btn btn-g btn-sm" onclick="editSale('${s.id}')">Edit</button><button class="btn-lnk" onclick="delSale('${s.id}')">Del</button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// EXPENSES
+// ─────────────────────────────────────────────────────────────
+function openExpense(){
+  $('me-title').textContent='Add Expense';$('eid').value='';
+  ['e-desc','e-amount','e-notes'].forEach(id=>$(id).value='');
+  $('e-cat').value='Marketing / Ads';$('e-cat-custom-wrap').classList.remove('show');
+  $('e-ccy').value='USD';$('e-date').value=today();$('e-recur').value='one-time';
+  $('e-conv-preview').textContent='';
+  renderSavedCatChips();openModal('m-expense');
+}
+function editExpense(id){
+  const e=db.expenses.find(x=>String(x.id)===String(id));if(!e)return;
+  $('me-title').textContent='Edit Expense';$('eid').value=e.id;
+  $('e-desc').value=e.desc;$('e-amount').value=e.amount;
+  $('e-ccy').value=e.ccy||'USD';$('e-date').value=e.date;
+  $('e-recur').value=e.recur||'one-time';$('e-notes').value=e.notes||'';
+  // set category
+  const catExists=Array.from($('e-cat').options).some(o=>o.value===e.cat);
+  if(catExists){$('e-cat').value=e.cat;$('e-cat-custom-wrap').classList.remove('show');}
+  else{$('e-cat').value='__other__';$('e-cat-custom').value=e.cat;$('e-cat-custom-wrap').classList.add('show');}
+  expConvPreview();renderSavedCatChips();openModal('m-expense');
+}
+async function saveExpense(){
+  const desc=$('e-desc').value.trim(),amount=parseFloat($('e-amount').value),date=$('e-date').value;
+  if(!desc||isNaN(amount)||!date)return alert('Description, amount and date required.');
+  const cat=getExpCat();if(!cat)return alert('Please enter a category name.');
+  // inject into select if custom
+  if(!Array.from($('e-cat').options).some(o=>o.value===cat)){
+    const opt=document.createElement('option');opt.value=cat;opt.textContent=cat;
+    $('e-cat').insertBefore(opt,document.querySelector('#e-cat-other-opt'));
+  }
+  const eid=String($('eid').value);
+  const ccy=$('e-ccy').value;
+  const exp={id:eid||uid(),desc,cat,amount,ccy,date,recur:$('e-recur').value,notes:$('e-notes').value.trim()};
+  try{
+    if(eid){await apiUpdate('expenses',eid,exp);db.expenses=db.expenses.map(x=>String(x.id)===eid?exp:x);}
+    else{
+      await apiInsert('expenses',exp);db.expenses.push(exp);
+      if(exp.recur!=='monthly'){
+        const cfEntry={id:uid(),desc,type:'out',cat,amount,ccy,date};
+        await apiInsert('cashflow',cfEntry);db.cashflow.push(cfEntry);
+      }
+    }
+    closeModal('m-expense');renderExpenses();
+  }catch(e){alert('Save failed: '+e.message);}
+}
+async function delExpense(id){if(!confirm('Delete?'))return;try{await apiDelete('expenses',id);db.expenses=db.expenses.filter(x=>String(x.id)!==String(id));renderExpenses();}catch(e){alert('Failed: '+e.message);}}
+function renderExpenses(){
+  const exps=db.expenses;
+  const total=exps.reduce((s,e)=>s+toDisplay(e.amount,e.ccy||displayCcy),0);
+  const monthExp=exps.filter(e=>e.date&&e.date.startsWith(thisMonth())&&e.recur!=='monthly').reduce((s,e)=>s+toDisplay(e.amount,e.ccy||displayCcy),0);
+  const recurTotal=exps.filter(e=>e.recur==='monthly').reduce((s,e)=>s+toDisplay(e.amount,e.ccy||displayCcy),0);
+  $('e-total').textContent=fmtAbs(total);$('e-month').textContent=fmtAbs(monthExp);$('e-recurring-total').textContent=fmtAbs(recurTotal);
+  checkRecurringDue();
+  const catMap={};exps.filter(e=>e.recur!=='monthly').forEach(e=>{catMap[e.cat]=(catMap[e.cat]||0)+toDisplay(e.amount,e.ccy||displayCcy);});
+  const cats=Object.keys(catMap);
+  mkChart('ch-exp-donut',{type:'doughnut',data:{labels:cats,datasets:[{data:cats.map(c=>Math.round(catMap[c])),backgroundColor:COLORS,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{color:'#6b6860',font:{size:11},boxWidth:10,padding:8}}}}});
+  const mmap={};exps.filter(e=>e.recur!=='monthly').forEach(e=>{const m=e.date?e.date.slice(0,7):'';if(!m)return;mmap[m]=(mmap[m]||0)+toDisplay(e.amount,e.ccy||displayCcy);});
+  const mks=Object.keys(mmap).sort();
+  mkChart('ch-exp-bar',{type:'bar',data:{labels:mks.map(m=>MONTHS[parseInt(m.slice(5))-1]),datasets:[{label:'Expenses',data:mks.map(m=>Math.round(mmap[m])),backgroundColor:'rgba(192,57,43,.55)',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:gridX,y:gridY}}});
+  const q=($('e-search')||{}).value||'';
+  const f=[...exps].filter(e=>(e.desc+e.cat).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!f.length){$('e-empty').style.display='';$('expenses-tbl').innerHTML='';return;}
+  $('e-empty').style.display='none';
+  $('expenses-tbl').innerHTML=f.map(e=>{
+    const ccy=e.ccy||displayCcy;
+    const origLabel=CCY_SYMBOLS[ccy]+Math.round(e.amount).toLocaleString()+' '+ccy;
+    const dispAmt=toDisplay(e.amount,ccy);
+    const isRec=e.recur==='monthly';
+    return `<tr>
+      <td>${e.date}</td><td>${e.desc}</td>
+      <td><span class="badge bgr">${e.cat}</span></td>
+      <td style="color:var(--t3);font-size:12px">${origLabel}</td>
+      <td class="tnum" style="color:${isRec?'var(--blue)':'var(--red)'}">-${fmtAbs(dispAmt)}</td>
+      <td>${isRec?`<span class="rec-badge">🔄 Monthly</span>`:`<span class="badge bgr">One-time</span>`}</td>
+      <td><div class="tact"><button class="btn btn-g btn-sm" onclick="editExpense('${e.id}')">Edit</button><button class="btn-lnk" onclick="delExpense('${e.id}')">Del</button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// CASH FLOW
+// ─────────────────────────────────────────────────────────────
+function openCF(){
+  $('mcf-title').textContent='Add Cash Flow Entry';$('cfid').value='';
+  ['cf-desc','cf-amount'].forEach(id=>$(id).value='');
+  $('cf-type').value='in';$('cf-cat').value='Watch Sale';$('cf-date').value=today();
+  $('cf-ccy').value='USD';$('cf-conv-preview').textContent='';openModal('m-cf');
+}
+function editCF(id){
+  const c=db.cashflow.find(x=>String(x.id)===String(id));if(!c)return;
+  $('mcf-title').textContent='Edit Entry';$('cfid').value=c.id;
+  $('cf-desc').value=c.desc;$('cf-type').value=c.type;$('cf-cat').value=c.cat;
+  $('cf-amount').value=c.amount;$('cf-ccy').value=c.ccy||'USD';$('cf-date').value=c.date;
+  cfConvPreview();openModal('m-cf');
+}
+async function saveCF(){
+  const desc=$('cf-desc').value.trim(),amount=parseFloat($('cf-amount').value),date=$('cf-date').value;
+  if(!desc||isNaN(amount)||!date)return alert('All fields required.');
+  const eid=String($('cfid').value);
+  const ccy=$('cf-ccy').value;
+  const entry={id:eid||uid(),desc,type:$('cf-type').value,cat:$('cf-cat').value,amount,ccy,date};
+  try{if(eid){await apiUpdate('cashflow',eid,entry);db.cashflow=db.cashflow.map(x=>String(x.id)===eid?entry:x);}else{await apiInsert('cashflow',entry);db.cashflow.push(entry);}closeModal('m-cf');renderCF();}
+  catch(e){alert('Save failed: '+e.message);}
+}
+async function delCF(id){if(!confirm('Delete?'))return;try{await apiDelete('cashflow',id);db.cashflow=db.cashflow.filter(x=>String(x.id)!==String(id));renderCF();}catch(e){alert('Failed: '+e.message);}}
+function renderCF(){
+  const ins=cfInTotal(),outs=cfOutTotal(),bal=ins-outs;
+  $('cf-in').textContent=fmtAbs(ins);$('cf-out').textContent=fmtAbs(outs);
+  $('cf-net').textContent=fmtAbs(bal);$('cf-net').className='stat-val '+(bal>=0?'c-blue':'c-red');
+  const sorted=[...db.cashflow].filter(c=>c.date).sort((a,b)=>a.date.localeCompare(b.date));
+  let run=0;const pts=sorted.map(c=>{run+=toDisplay(c.amount,c.ccy||displayCcy)*(c.type==='in'?1:-1);return Math.round(run);});
+  mkChart('ch-cf-line',{type:'line',data:{labels:sorted.map(c=>c.date.slice(5)),datasets:[{data:pts,borderColor:'#1a5fa8',backgroundColor:'rgba(26,95,168,.08)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#1a5fa8'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:gridX,y:gridY}}});
+  mkChart('ch-cf-donut',{type:'doughnut',data:{labels:['In','Out'],datasets:[{data:[Math.round(ins),Math.round(outs)],backgroundColor:['rgba(26,122,74,.7)','rgba(192,57,43,.65)'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:'#6b6860',font:{size:11},boxWidth:10}}}}});
+  const q=($('cf-search')||{}).value||'';
+  let rb=0;const wb=sorted.map(c=>{rb+=toDisplay(c.amount,c.ccy||displayCcy)*(c.type==='in'?1:-1);return{...c,bal:rb};});
+  const f=wb.filter(c=>(c.desc+c.cat).toLowerCase().includes(q.toLowerCase())).reverse();
+  if(!f.length){$('cf-empty').style.display='';$('cf-tbl').innerHTML='';return;}
+  $('cf-empty').style.display='none';
+  $('cf-tbl').innerHTML=f.map(c=>{
+    const ccy=c.ccy||displayCcy;
+    const origLabel=CCY_SYMBOLS[ccy]+Math.round(c.amount).toLocaleString()+' '+ccy;
+    const dispAmt=toDisplay(c.amount,ccy);
+    return `<tr><td>${c.date}</td><td>${c.desc}</td><td><span class="badge bgr">${c.cat}</span></td>
+      <td><span class="badge ${c.type==='in'?'bg':'br'}">${c.type==='in'?'IN':'OUT'}</span></td>
+      <td style="color:var(--t3);font-size:12px">${origLabel}</td>
+      <td class="tnum ${c.type==='in'?'cf-in':'cf-out'}">${c.type==='in'?'+':'-'}${fmtAbs(dispAmt)}</td>
+      <td class="tnum" style="color:${c.bal>=0?'var(--blue)':'var(--red)'}">${fmtAbs(Math.abs(c.bal))}</td>
+      <td><div class="tact"><button class="btn btn-g btn-sm" onclick="editCF('${c.id}')">Edit</button><button class="btn-lnk" onclick="delCF('${c.id}')">Del</button></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────────────────────
+// P&L
+// ─────────────────────────────────────────────────────────────
+function renderPnL(){
+  const rev=totalRev(),cogs=totalSoldCost(),gross=rev-cogs;
+  const grossM=rev>0?(gross/rev*100).toFixed(1):0;
+  const expByCat={};
+  db.expenses.filter(e=>e.recur!=='monthly').forEach(e=>{expByCat[e.cat]=(expByCat[e.cat]||0)+toDisplay(e.amount,e.ccy||displayCcy);});
+  const totalE=Object.values(expByCat).reduce((s,v)=>s+v,0),net=gross-totalE,netM=rev>0?(net/rev*100).toFixed(1):0;
+  const line=(lbl,val,indent,bold,col)=>`<div class="prow${bold?' ptotal':''}"><span class="plbl${indent?' ind':''}">${lbl}</span><span class="pval" style="color:${col||'inherit'}">${val>=0?'':'-'}${fmtAbs(Math.abs(val))}</span></div>`;
+  $('pnl-body').innerHTML=`
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:5px">Revenue</div>
+    ${line('Watch sales',rev,false,false,'var(--text)')}
+    ${line('Total Revenue',rev,false,true,'var(--text)')}
+    <div style="height:12px"></div>
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:5px">Cost of Goods Sold</div>
+    ${line('Cost of watches sold',-cogs,true)}
+    ${line('Gross Profit',gross,false,true,gross>=0?'var(--green)':'var(--red)')}
+    <div style="font-size:12px;color:var(--t3);text-align:right;margin-top:-4px;margin-bottom:10px">Gross margin: ${grossM}%</div>
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--t3);margin-bottom:5px">Expenses</div>
+    ${Object.entries(expByCat).map(([k,v])=>line(k,-v,true)).join('')}
+    ${line('Total Expenses',-totalE,false,true,'var(--red)')}
+    <div style="height:12px"></div>
+    ${line('NET PROFIT',net,false,true,net>=0?'var(--green)':'var(--red)')}
+    <div style="font-size:12px;color:var(--t3);text-align:right;margin-top:-4px">Net margin: ${netM}% · All in ${displayCcy}</div>`;
+  mkChart('ch-pnl-bar',{type:'bar',data:{labels:['Revenue','COGS','Gross Profit','Expenses','Net Profit'],datasets:[{data:[rev,cogs,gross,totalE,net].map(Math.round),backgroundColor:['rgba(24,24,26,.72)','rgba(192,57,43,.5)',gross>=0?'rgba(26,122,74,.6)':'rgba(192,57,43,.5)','rgba(192,57,43,.45)',net>=0?'rgba(26,122,74,.8)':'rgba(192,57,43,.8)'],borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#a8a49e',font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#a8a49e',font:{size:10},callback:v=>sym()+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}}}}});
+  const cats=Object.keys(expByCat);
+  mkChart('ch-pnl-donut',{type:'doughnut',data:{labels:cats,datasets:[{data:cats.map(c=>Math.round(expByCat[c])),backgroundColor:COLORS,borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{color:'#6b6860',font:{size:10},boxWidth:10,padding:6}}}}});
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+if(SHEET_URL){ tryAutoConnect(); }
+</script>
+</body>
+</html>
