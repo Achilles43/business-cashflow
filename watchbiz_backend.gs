@@ -13,7 +13,13 @@ const HEADERS = {
   cashflow: ['id','desc','type','cat','amount','date']
 };
 
-// ── CORS + routing ──────────────────────────────────────────
+function setCORS(output) {
+  return output
+    .setHeader('Access-Control-Allow-Origin', '*')
+    .setHeader('Access-Control-Allow-Methods', 'GET, POST')
+    .setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
 function doGet(e) {
   const action = e.parameter.action;
   const sheet  = e.parameter.sheet;
@@ -24,9 +30,11 @@ function doGet(e) {
   } catch(err) {
     result = { error: err.message };
   }
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
+  return setCORS(
+    ContentService
+      .createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON)
+  );
 }
 
 function doPost(e) {
@@ -41,9 +49,11 @@ function doPost(e) {
   } catch(err) {
     result = { error: err.message };
   }
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
+  return setCORS(
+    ContentService
+      .createTextOutput(JSON.stringify(result))
+      .setMimeType(ContentService.MimeType.JSON)
+  );
 }
 
 // ── Sheet helpers ───────────────────────────────────────────
