@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Watch Business</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -161,7 +162,8 @@ input[readonly]{background:var(--bg);color:var(--t3)}
 @keyframes typing{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
 .ai-suggestion{padding:7px 13px;border-radius:20px;font-size:12px;border:1px solid var(--border2);background:var(--surface);color:var(--t2);cursor:pointer;transition:all .12s}
 .ai-suggestion:hover{background:var(--bg);color:var(--text);border-color:var(--text)}
-@media(max-width:768px){.ai-msg{max-width:95%}}
+@media(max-width:768px){
+  .ai-msg{max-width:95%}
   .topnav{padding:0 14px;height:48px}
   .nav-tabs{display:none}
   .mobile-nav{display:block}
@@ -173,13 +175,12 @@ input[readonly]{background:var(--bg);color:var(--t3)}
   .stat-val{font-size:19px}
   .card-hdr{flex-wrap:wrap;gap:8px;padding:12px 14px}
   .card-body{padding:14px}
-  .modal{padding:20px;border-radius:16px 16px 0 0;position:fixed;bottom:0;left:0;right:0;width:100%;max-width:100%;max-height:85vh;border-radius:20px 20px 0 0}
+  .modal{padding:20px;position:fixed;bottom:0;left:0;right:0;width:100%;max-width:100%;max-height:85vh;border-radius:20px 20px 0 0}
   .overlay{align-items:flex-end}
   .sec-hdr{flex-wrap:wrap;gap:10px}
   thead th{padding:6px 10px;font-size:10px}
   tbody td{padding:8px 10px;font-size:12px}
   .rates-bar{display:none}
-  .nav-right .disp-ccy{display:flex}
   .brand{font-size:14px;margin-right:10px}
 }
 @media(min-width:769px){
@@ -258,6 +259,10 @@ input[readonly]{background:var(--bg);color:var(--t3)}
   <div class="two-col">
     <div class="card"><div class="card-hdr"><span class="card-title">Revenue vs Expenses</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-ov-bar"></canvas></div></div></div>
     <div class="card"><div class="card-hdr"><span class="card-title">Revenue by Source</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-ov-source"></canvas></div></div></div>
+  </div>
+  <div class="two-col">
+    <div class="card"><div class="card-hdr"><span class="card-title">Monthly Profit Trend</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-ov-profit"></canvas></div></div></div>
+    <div class="card"><div class="card-hdr"><span class="card-title">Profit per Watch Model</span></div><div class="card-body"><div class="chart-wrap"><canvas id="ch-ov-model"></canvas></div></div></div>
   </div>
   <div class="card">
     <div class="card-hdr"><span class="card-title">Recent Sales</span><button class="btn btn-g btn-sm" onclick="nav('sales')">All →</button></div>
@@ -409,31 +414,29 @@ input[readonly]{background:var(--bg);color:var(--t3)}
     <input type="hidden" id="wid">
     <div class="fg"><label>Model Name *</label><input id="w-name" placeholder="e.g. Submariner Date"></div>
     <div class="fg"><label>Reference / SKU</label><input id="w-ref" placeholder="e.g. 126610LN"></div>
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:10px">Cost Breakdown</div>
-    <div class="frow">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Cost Breakdown</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
       <div class="fg"><label>Watch Cost *</label>
-        <div class="amt-ccy"><input id="w-watch-cost" type="number" step="0.01" placeholder="0.00" oninput="calcWatchCost()"><select id="w-cost-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+        <div class="amt-ccy"><input id="w-watch-cost" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-cost-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
       </div>
-      <div class="fg"><label>Box Cost</label>
-        <div class="amt-ccy"><input id="w-box" type="number" step="0.01" placeholder="0.00" oninput="calcWatchCost()"><select id="w-box-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+      <div class="fg"><label>Box</label>
+        <div class="amt-ccy"><input id="w-box" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-box-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
       </div>
-    </div>
-    <div class="frow">
-      <div class="fg"><label>Bag / Strap Cost</label>
-        <div class="amt-ccy"><input id="w-bag" type="number" step="0.01" placeholder="0.00" oninput="calcWatchCost()"><select id="w-bag-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+      <div class="fg"><label>Bag / Strap</label>
+        <div class="amt-ccy"><input id="w-bag" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-bag-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
       </div>
-      <div class="fg"><label>Transport / Import</label>
-        <div class="amt-ccy"><input id="w-transport" type="number" step="0.01" placeholder="0.00" oninput="calcWatchCost()"><select id="w-transport-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+      <div class="fg"><label>Transport</label>
+        <div class="amt-ccy"><input id="w-transport" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-transport-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
       </div>
     </div>
     <div id="w-cost-total" style="font-size:13px;font-weight:600;background:var(--bg);border-radius:8px;padding:8px 12px;margin-bottom:13px;min-height:34px"></div>
-    <div class="frow">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-top:4px">
       <div class="fg"><label>Default Sell Price</label>
         <div class="amt-ccy"><input id="w-price" type="number" step="0.01" placeholder="0.00"><select id="w-price-ccy"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
       </div>
       <div class="fg"><label>Qty in Stock *</label><input id="w-qty" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label>Low Stock Alert</label><input id="w-alert" type="number" placeholder="2" min="0"></div>
     </div>
-    <div class="fg"><label>Low Stock Alert (units)</label><input id="w-alert" type="number" placeholder="2" min="0"></div>
     <div class="mfoot">
       <button class="btn btn-g" onclick="closeModal('m-watch')">Cancel</button>
       <button class="btn btn-p" onclick="saveWatch()">Save</button>
@@ -447,7 +450,7 @@ input[readonly]{background:var(--bg);color:var(--t3)}
     <h2 id="ms-title">Record Sale</h2>
     <input type="hidden" id="sid">
     <div class="fg"><label>Watch Model *</label><select id="s-watch" onchange="onSaleWatch()"><option value="">— select —</option></select></div>
-    <div class="frow">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px">
       <div class="fg">
         <label>Sale Price * <span style="color:var(--t3);font-weight:400">(edit freely)</span></label>
         <div class="amt-ccy">
@@ -455,14 +458,13 @@ input[readonly]{background:var(--bg);color:var(--t3)}
           <select id="s-price-ccy" onchange="salePreview()"><option>USD</option><option>GEL</option><option>EUR</option></select>
         </div>
       </div>
-      <div class="fg"><label>Cost (auto-filled)</label><input id="s-cost-disp" readonly placeholder="auto"></div>
+      <div class="fg"><label>Cost (auto)</label><input id="s-cost-disp" readonly placeholder="auto"></div>
+      <div class="fg"><label>Qty Sold *</label><input id="s-qty" type="number" value="1" min="1" oninput="salePreview()"></div>
     </div>
     <div class="frow">
-      <div class="fg"><label>Qty Sold *</label><input id="s-qty" type="number" value="1" min="1" oninput="salePreview()"></div>
       <div class="fg"><label>Date *</label><input id="s-date" type="date"></div>
-    </div>
     <div class="fg"><label>Sold Via (source)</label>
-      <select id="s-source"><option>Instagram</option><option>Meta Ads</option><option>Facebook</option><option>Website</option><option>Walk-in</option><option>Referral</option><option>WhatsApp</option><option value="__other__">Other (type below)</option></select>
+      <select id="s-source"><option>Instagram</option><option>Meta Ads</option><option>Facebook</option><option>Website</option><option>Walk-in</option><option>Referral</option><option>WhatsApp</option><option>Casio Store</option><option>Close People</option><option>Personal</option><option>Gift</option><option value="__other__">Other (type below)</option></select>
       <div class="custom-cat-wrap" id="s-source-custom-wrap"><input id="s-source-custom" placeholder="Type source name…" style="margin-top:6px"></div>
     </div>
     <div class="ppreview" id="s-preview"></div>
@@ -479,7 +481,7 @@ input[readonly]{background:var(--bg);color:var(--t3)}
     <h2 id="me-title">Add Expense</h2>
     <input type="hidden" id="eid">
     <div class="fg"><label>Description *</label><input id="e-desc" placeholder="e.g. Instagram ads, rent, packaging…"></div>
-    <div class="frow">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div class="fg"><label>Category *</label>
         <select id="e-cat" onchange="onExpCatChange()">
           <option>Marketing / Ads</option>
@@ -492,9 +494,8 @@ input[readonly]{background:var(--bg);color:var(--t3)}
           <option>Tax / Fees</option>
           <option id="e-cat-other-opt" value="__other__">Other (type below)</option>
         </select>
-        <div class="custom-cat-wrap" id="e-cat-custom-wrap"><input id="e-cat-custom" placeholder="Type category name…" style="margin-top:6px"></div>
-        <!-- saved custom categories injected here -->
-        <div id="e-saved-cats" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px"></div>
+        <div class="custom-cat-wrap" id="e-cat-custom-wrap"><input id="e-cat-custom" placeholder="Type category name…" style="margin-top:5px"></div>
+        <div id="e-saved-cats" style="margin-top:5px;display:flex;flex-wrap:wrap;gap:4px"></div>
       </div>
       <div class="fg"><label>Amount *</label>
         <div class="amt-ccy">
@@ -503,16 +504,15 @@ input[readonly]{background:var(--bg);color:var(--t3)}
         </div>
         <div class="conv-preview" id="e-conv-preview"></div>
       </div>
-    </div>
-    <div class="frow">
-      <div class="fg"><label>Date *</label><input id="e-date" type="date"></div>
-      <div class="fg"><label>Expense Type</label>
+      <div class="fg"><label>Type</label>
         <select id="e-recur">
           <option value="one-time">One-time</option>
           <option value="monthly">Monthly (recurring)</option>
         </select>
       </div>
     </div>
+    <div class="frow">
+      <div class="fg"><label>Date *</label><input id="e-date" type="date"></div>
     <div class="fg"><label>Notes (optional)</label><input id="e-notes" placeholder="Vendor, invoice #, free text…"></div>
     <div class="mfoot">
       <button class="btn btn-g" onclick="closeModal('m-expense')">Cancel</button>
@@ -527,19 +527,17 @@ input[readonly]{background:var(--bg);color:var(--t3)}
     <h2 id="mcf-title">Add Cash Flow Entry</h2>
     <input type="hidden" id="cfid">
     <div class="fg"><label>Description *</label><input id="cf-desc" placeholder="e.g. Watch sale, rent payment…"></div>
-    <div class="frow">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div class="fg"><label>Type *</label><select id="cf-type"><option value="in">➕ Money In</option><option value="out">➖ Money Out</option></select></div>
       <div class="fg"><label>Category</label><select id="cf-cat"><option>Watch Sale</option><option>Inventory Purchase</option><option>Marketing / Ads</option><option>Rent</option><option>Salaries</option><option>Shipping</option><option>Owner Investment</option><option>Tax / Fees</option><option>Other</option></select></div>
-    </div>
-    <div class="frow">
-      <div class="fg"><label>Amount *</label>
-        <div class="amt-ccy">
-          <input id="cf-amount" type="number" step="0.01" placeholder="0.00" oninput="cfConvPreview()">
-          <select id="cf-ccy" onchange="cfConvPreview()"><option>USD</option><option>GEL</option><option>EUR</option></select>
-        </div>
-        <div class="conv-preview" id="cf-conv-preview"></div>
-      </div>
       <div class="fg"><label>Date *</label><input id="cf-date" type="date"></div>
+    </div>
+    <div class="fg"><label>Amount *</label>
+      <div class="amt-ccy">
+        <input id="cf-amount" type="number" step="0.01" placeholder="0.00" oninput="cfConvPreview()">
+        <select id="cf-ccy" onchange="cfConvPreview()"><option>USD</option><option>GEL</option><option>EUR</option></select>
+      </div>
+      <div class="conv-preview" id="cf-conv-preview"></div>
     </div>
     <div class="mfoot">
       <button class="btn btn-g" onclick="closeModal('m-cf')">Cancel</button>
@@ -564,6 +562,7 @@ input[readonly]{background:var(--bg);color:var(--t3)}
 // ─────────────────────────────────────────────────────────────
 // DARK MODE
 // ─────────────────────────────────────────────────────────────
+Chart.register(ChartDataLabels);
 function toggleDark() {
   const isDark = document.body.classList.toggle('dark');
   localStorage.setItem('wbiz_dark', isDark ? '1' : '0');
@@ -582,6 +581,8 @@ const $ = id => document.getElementById(id);
 const uid = () => Date.now()+''+ Math.floor(Math.random()*9999);
 const today = () => new Date().toISOString().split('T')[0];
 const thisMonth = () => new Date().toISOString().slice(0,7);
+// Clean dates from Google Sheets (removes T00:00:00.000Z suffix)
+const cleanDate = d => d ? String(d).split('T')[0] : '';
 function openModal(id){ $(id).classList.add('open'); }
 function closeModal(id){ $(id).classList.remove('open'); }
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
@@ -822,7 +823,7 @@ async function sheetPost(body){
   if(d.error) throw new Error(d.error);
   return d;
 }
-function coerce(obj){ const nums=['watchCost','boxCost','bagCost','transportCost','cost','price','qty','alert','amount'];const o={};for(const k in obj){o[k]=nums.includes(k)?(parseFloat(obj[k])||0):obj[k];}return o; }
+function coerce(obj){ const nums=['watchCost','boxCost','bagCost','transportCost','cost','price','qty','alert','amount'];const o={};for(const k in obj){if(k==='date')o[k]=cleanDate(obj[k]);else o[k]=nums.includes(k)?(parseFloat(obj[k])||0):obj[k];}return o; }
 async function loadAll(){ showLoading('Loading your data…');try{const[w,s,e,c]=await Promise.all([sheetGet('watches'),sheetGet('sales'),sheetGet('expenses'),sheetGet('cashflow')]);db.watches=w.map(coerce);db.sales=s.map(coerce);db.expenses=e.map(coerce);db.cashflow=c.map(coerce);setSyncStatus('ok','Synced');}catch(e){setSyncStatus('err','Error');alert('Could not load data: '+e.message);}hideLoading(); }
 async function apiInsert(sheet,row){ setSyncStatus('spin','Saving…');try{await sheetPost({action:'insert',sheet,row});setSyncStatus('ok','Saved');}catch(e){setSyncStatus('err','Error');throw e;} }
 async function apiUpdate(sheet,id,row){ setSyncStatus('spin','Saving…');try{await sheetPost({action:'update',sheet,id,row});setSyncStatus('ok','Saved');}catch(e){setSyncStatus('err','Error');throw e;} }
@@ -912,7 +913,11 @@ function stockVal(){ return db.watches.reduce((s,w)=>s+toDisplay(w.cost*w.qty, w
 const charts={};
 function mkChart(id,cfg){if(charts[id])charts[id].destroy();const c=$(id);if(!c)return;charts[id]=new Chart(c,cfg);}
 const gridX={grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#a8a49e',font:{size:11}}};
-const gridY={grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#a8a49e',font:{size:11},callback:v=>sym()+v.toLocaleString()}};
+const gridY={grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#a8a49e',font:{size:11},callback:v=>sym()+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}};
+// Bar chart options with always-visible labels
+function barOpts(extra){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'top',color:'#6b6860',font:{size:9},formatter:v=>v&&Math.abs(v)>0?sym()+(Math.abs(v)>=1000?(Math.abs(v)/1000).toFixed(1)+'k':Math.round(Math.abs(v))):''},...(extra?.plugins||{})},scales:{x:gridX,y:gridY},...(extra||{})}}
+// Doughnut options with always-visible % labels
+function doughnutOpts(){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{color:'#6b6860',font:{size:11},boxWidth:10,padding:8}},datalabels:{display:true,color:'#fff',font:{size:10,weight:'bold'},formatter:(v,ctx)=>{const tot=ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0);const pct=Math.round(v/tot*100);return pct>8?pct+'%':''}}}}}
 
 // ─────────────────────────────────────────────────────────────
 // OVERVIEW
@@ -931,18 +936,25 @@ function renderOverview(){
   $('ov-alerts').innerHTML=low.length?`<div class="alert alert-w">⚠ Low stock: ${low.map(w=>`<b>${w.name}</b> (${w.qty} left)`).join(', ')}</div>`:'';
   checkRecurringDue();
   const mmap={};
-  db.sales.forEach(s=>{const m=s.date?s.date.slice(0,7):'';if(!m)return;mmap[m]=(mmap[m]||{r:0,e:0});mmap[m].r+=toDisplay(s.price*s.qty,s.priceCcy||displayCcy);});
-  db.expenses.forEach(e=>{const m=e.date?e.date.slice(0,7):'';if(!m)return;mmap[m]=(mmap[m]||{r:0,e:0});mmap[m].e+=toDisplay(e.amount,e.ccy||displayCcy);});
+  db.sales.forEach(s=>{const m=s.date?s.date.slice(0,7):'';if(!m)return;mmap[m]=(mmap[m]||{r:0,c:0,e:0});mmap[m].r+=toDisplay(s.price*s.qty,s.priceCcy||displayCcy);mmap[m].c+=toDisplay(s.cost*s.qty,s.costCcy||displayCcy);});
+  db.expenses.forEach(e=>{const m=e.date?e.date.slice(0,7):'';if(!m)return;mmap[m]=(mmap[m]||{r:0,c:0,e:0});mmap[m].e+=toDisplay(e.amount,e.ccy||displayCcy);});
   const mks=Object.keys(mmap).sort();
+  const profitData=mks.map(m=>Math.round((mmap[m].r-mmap[m].c-mmap[m].e)));
   mkChart('ch-ov-bar',{type:'bar',data:{labels:mks.map(m=>MONTHS[parseInt(m.slice(5))-1]),datasets:[
-    {label:'Revenue',data:mks.map(m=>Math.round(mmap[m].r)),backgroundColor:'rgba(24,24,26,.75)',borderRadius:4},
-    {label:'Expenses',data:mks.map(m=>Math.round(mmap[m].e)),backgroundColor:'rgba(192,57,43,.5)',borderRadius:4}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#6b6860',font:{size:11},boxWidth:10}}},scales:{x:gridX,y:gridY}}});
+    {label:'Revenue',data:mks.map(m=>Math.round(mmap[m].r)),backgroundColor:'rgba(26,95,168,.6)',borderRadius:4},
+    {label:'Expenses',data:mks.map(m=>Math.round((mmap[m].c||0)+(mmap[m].e||0))),backgroundColor:'rgba(192,57,43,.5)',borderRadius:4}
+  ]},options:{...barOpts(),plugins:{...barOpts().plugins,legend:{display:true,labels:{color:'#6b6860',font:{size:11},boxWidth:10}}}}});
+  mkChart('ch-ov-profit',{type:'bar',data:{labels:mks.map(m=>MONTHS[parseInt(m.slice(5))-1]),datasets:[{label:'Profit',data:profitData,backgroundColor:profitData.map(v=>v>=0?'rgba(26,122,74,.7)':'rgba(192,57,43,.6)'),borderRadius:4}]},options:barOpts()});
+
   const srcMap={};
   db.sales.forEach(s=>{const src=s.source||'Other';srcMap[src]=(srcMap[src]||0)+toDisplay(s.price*s.qty,s.priceCcy||displayCcy);});
   const srcs=Object.keys(srcMap);
-  mkChart('ch-ov-source',{type:'doughnut',data:{labels:srcs,datasets:[{data:srcs.map(s=>Math.round(srcMap[s])),backgroundColor:COLORS,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{color:'#6b6860',font:{size:11},boxWidth:10,padding:8}}}}});
+  mkChart('ch-ov-source',{type:'doughnut',data:{labels:srcs,datasets:[{data:srcs.map(s=>Math.round(srcMap[s])),backgroundColor:COLORS,borderWidth:0}]},options:doughnutOpts()});
+
+  // Profit per model (horizontal bar)
+  const mp={};db.sales.forEach(s=>{const p=toDisplay((s.price-s.cost)*s.qty,s.priceCcy||displayCcy);mp[s.watchName]=(mp[s.watchName]||0)+p;});
+  const mk=Object.keys(mp).sort((a,b)=>mp[b]-mp[a]);
+  mkChart('ch-ov-model',{type:'bar',data:{labels:mk,datasets:[{data:mk.map(k=>Math.round(mp[k])),backgroundColor:mk.map(k=>mp[k]>=0?'rgba(26,122,74,.7)':'rgba(192,57,43,.6)'),borderRadius:3}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:true,anchor:'end',align:'right',color:'#6b6860',font:{size:9},formatter:v=>fmtAbs(v)}},scales:{x:{...gridX,ticks:{...gridX.ticks,callback:v=>fmtAbs(v)}},y:gridX}}});
   const srcB={'Instagram':'bb','Meta Ads':'bb','Facebook':'bb','Website':'bg','Walk-in':'bgl','Referral':'bg','WhatsApp':'bg'};
   const recent=[...db.sales].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,6);
   $('ov-recent').innerHTML=recent.map(s=>{
@@ -1176,12 +1188,10 @@ function renderExpenses(){
   checkRecurringDue();
   const catMap={};exps.filter(e=>e.recur!=='monthly').forEach(e=>{catMap[e.cat]=(catMap[e.cat]||0)+toDisplay(e.amount,e.ccy||displayCcy);});
   const cats=Object.keys(catMap);
-  mkChart('ch-exp-donut',{type:'doughnut',data:{labels:cats,datasets:[{data:cats.map(c=>Math.round(catMap[c])),backgroundColor:COLORS,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{color:'#6b6860',font:{size:11},boxWidth:10,padding:8}}}}});
+  mkChart('ch-exp-donut',{type:'doughnut',data:{labels:cats,datasets:[{data:cats.map(c=>Math.round(catMap[c])),backgroundColor:COLORS,borderWidth:0}]},options:doughnutOpts()});
   const mmap={};exps.filter(e=>e.recur!=='monthly').forEach(e=>{const m=e.date?e.date.slice(0,7):'';if(!m)return;mmap[m]=(mmap[m]||0)+toDisplay(e.amount,e.ccy||displayCcy);});
   const mks=Object.keys(mmap).sort();
-  mkChart('ch-exp-bar',{type:'bar',data:{labels:mks.map(m=>MONTHS[parseInt(m.slice(5))-1]),datasets:[{label:'Expenses',data:mks.map(m=>Math.round(mmap[m])),backgroundColor:'rgba(192,57,43,.55)',borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:gridX,y:gridY}}});
+  mkChart('ch-exp-bar',{type:'bar',data:{labels:mks.map(m=>MONTHS[parseInt(m.slice(5))-1]),datasets:[{label:'Expenses',data:mks.map(m=>Math.round(mmap[m])),backgroundColor:'rgba(192,57,43,.55)',borderRadius:4}]},options:barOpts()});
   const q=($('e-search')||{}).value||'';
   const f=[...exps].filter(e=>(e.desc+e.cat).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   if(!f.length){$('e-empty').style.display='';$('expenses-tbl').innerHTML='';return;}
@@ -1235,9 +1245,8 @@ function renderCF(){
   const sorted=[...db.cashflow].filter(c=>c.date).sort((a,b)=>a.date.localeCompare(b.date));
   let run=0;const pts=sorted.map(c=>{run+=toDisplay(c.amount,c.ccy||displayCcy)*(c.type==='in'?1:-1);return Math.round(run);});
   mkChart('ch-cf-line',{type:'line',data:{labels:sorted.map(c=>c.date.slice(5)),datasets:[{data:pts,borderColor:'#1a5fa8',backgroundColor:'rgba(26,95,168,.08)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#1a5fa8'}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:gridX,y:gridY}}});
-  mkChart('ch-cf-donut',{type:'doughnut',data:{labels:['In','Out'],datasets:[{data:[Math.round(ins),Math.round(outs)],backgroundColor:['rgba(26,122,74,.7)','rgba(192,57,43,.65)'],borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{color:'#6b6860',font:{size:11},boxWidth:10}}}}});
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},datalabels:{display:false}},scales:{x:gridX,y:gridY}}});
+  mkChart('ch-cf-donut',{type:'doughnut',data:{labels:['In','Out'],datasets:[{data:[Math.round(ins),Math.round(outs)],backgroundColor:['rgba(26,122,74,.7)','rgba(192,57,43,.65)'],borderWidth:0}]},options:doughnutOpts()});
   const q=($('cf-search')||{}).value||'';
   let rb=0;const wb=sorted.map(c=>{rb+=toDisplay(c.amount,c.ccy||displayCcy)*(c.type==='in'?1:-1);return{...c,bal:rb};});
   const f=wb.filter(c=>(c.desc+c.cat).toLowerCase().includes(q.toLowerCase())).reverse();
@@ -1285,8 +1294,7 @@ function renderPnL(){
   mkChart('ch-pnl-bar',{type:'bar',data:{labels:['Revenue','COGS','Gross Profit','Expenses','Net Profit'],datasets:[{data:[rev,cogs,gross,totalE,net].map(Math.round),backgroundColor:['rgba(24,24,26,.72)','rgba(192,57,43,.5)',gross>=0?'rgba(26,122,74,.6)':'rgba(192,57,43,.5)','rgba(192,57,43,.45)',net>=0?'rgba(26,122,74,.8)':'rgba(192,57,43,.8)'],borderRadius:4}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#a8a49e',font:{size:10}}},y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{color:'#a8a49e',font:{size:10},callback:v=>sym()+(Math.abs(v)>=1000?(v/1000).toFixed(0)+'k':v)}}}}});
   const cats=Object.keys(expByCat);
-  mkChart('ch-pnl-donut',{type:'doughnut',data:{labels:cats,datasets:[{data:cats.map(c=>Math.round(expByCat[c])),backgroundColor:COLORS,borderWidth:0}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'right',labels:{color:'#6b6860',font:{size:10},boxWidth:10,padding:6}}}}});
+  mkChart('ch-pnl-donut',{type:'doughnut',data:{labels:cats,datasets:[{data:cats.map(c=>Math.round(expByCat[c])),backgroundColor:COLORS,borderWidth:0}]},options:doughnutOpts()});
 }
 
 // ─────────────────────────────────────────────────────────────
