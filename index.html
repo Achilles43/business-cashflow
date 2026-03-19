@@ -321,7 +321,18 @@ input[readonly]{background:var(--bg);color:var(--t3)}
   <div class="card">
     <div class="card-hdr"><span class="card-title">All Sales</span><input type="text" id="s-search" placeholder="Search…" oninput="renderSales()" style="width:180px"></div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Date</th><th>Watch</th><th>Qty</th><th>Original</th><th>Sold For</th><th>Cost</th><th>Profit</th><th>Margin</th><th>Source</th><th></th></tr></thead>
+      <thead id="sales-thead"><tr>
+  <th style="cursor:pointer;user-select:none" onclick="sortSales('date')">Date <span id="sarr-date">↓</span></th>
+  <th style="cursor:pointer;user-select:none" onclick="sortSales('watch')">Watch <span id="sarr-watch">⇅</span></th>
+  <th style="cursor:pointer;user-select:none" onclick="sortSales('qty')">Qty <span id="sarr-qty">⇅</span></th>
+  <th>Original</th>
+  <th style="cursor:pointer;user-select:none" onclick="sortSales('revenue')">Sold For <span id="sarr-revenue">⇅</span></th>
+  <th style="cursor:pointer;user-select:none" onclick="sortSales('cost')">Cost <span id="sarr-cost">⇅</span></th>
+  <th style="cursor:pointer;user-select:none" onclick="sortSales('profit')">Profit <span id="sarr-profit">⇅</span></th>
+  <th style="cursor:pointer;user-select:none" onclick="sortSales('margin')">Margin <span id="sarr-margin">⇅</span></th>
+  <th style="cursor:pointer;user-select:none" onclick="sortSales('source')">Source <span id="sarr-source">⇅</span></th>
+  <th></th>
+</tr></thead>
       <tbody id="sales-tbl"></tbody>
     </table></div>
     <div id="s-empty" class="empty" style="display:none">No sales yet.</div>
@@ -344,7 +355,15 @@ input[readonly]{background:var(--bg);color:var(--t3)}
   <div class="card">
     <div class="card-hdr"><span class="card-title">All Expenses</span><input type="text" id="e-search" placeholder="Search…" oninput="renderExpenses()" style="width:180px"></div>
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Original</th><th>Amount</th><th>Type</th><th></th></tr></thead>
+      <thead id="exp-thead"><tr>
+  <th style="cursor:pointer;user-select:none" onclick="sortExp('date')">Date <span id="earr-date">↓</span></th>
+  <th style="cursor:pointer;user-select:none" onclick="sortExp('desc')">Description <span id="earr-desc">⇅</span></th>
+  <th style="cursor:pointer;user-select:none" onclick="sortExp('cat')">Category <span id="earr-cat">⇅</span></th>
+  <th>Original</th>
+  <th style="cursor:pointer;user-select:none" onclick="sortExp('amount')">Amount <span id="earr-amount">⇅</span></th>
+  <th style="cursor:pointer;user-select:none" onclick="sortExp('type')">Type <span id="earr-type">⇅</span></th>
+  <th></th>
+</tr></thead>
       <tbody id="expenses-tbl"></tbody>
     </table></div>
     <div id="e-empty" class="empty" style="display:none">No expenses yet.</div>
@@ -437,18 +456,18 @@ input[readonly]{background:var(--bg);color:var(--t3)}
     <div class="fg"><label>Model Name *</label><input id="w-name" placeholder="e.g. Submariner Date"></div>
     <div class="fg"><label>Reference / SKU</label><input id="w-ref" placeholder="e.g. 126610LN"></div>
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--t3);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)">Cost Breakdown</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="fg"><label>Watch Cost *</label>
-        <div class="amt-ccy"><input id="w-watch-cost" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-cost-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+        <div class="amt-ccy"><input id="w-watch-cost" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-cost-ccy" onchange="calcWatchCost()" style="width:80px"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
       </div>
       <div class="fg"><label>Box</label>
-        <div class="amt-ccy"><input id="w-box" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-box-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+        <div class="amt-ccy"><input id="w-box" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-box-ccy" onchange="calcWatchCost()" style="width:80px"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
       </div>
       <div class="fg"><label>Bag / Strap</label>
-        <div class="amt-ccy"><input id="w-bag" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-bag-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+        <div class="amt-ccy"><input id="w-bag" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-bag-ccy" onchange="calcWatchCost()" style="width:80px"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
       </div>
       <div class="fg"><label>Transport</label>
-        <div class="amt-ccy"><input id="w-transport" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-transport-ccy" onchange="calcWatchCost()"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
+        <div class="amt-ccy"><input id="w-transport" type="number" step="0.01" placeholder="0" oninput="calcWatchCost()"><select id="w-transport-ccy" onchange="calcWatchCost()" style="width:80px"><option>USD</option><option>GEL</option><option>EUR</option></select></div>
       </div>
     </div>
     <div id="w-cost-total" style="font-size:13px;font-weight:600;background:var(--bg);border-radius:8px;padding:8px 12px;margin-bottom:13px;min-height:34px"></div>
@@ -808,9 +827,15 @@ function cfConvPreview() {
 }
 function calcWatchCost() {
   const fields = [['w-watch-cost','w-cost-ccy'],['w-box','w-box-ccy'],['w-bag','w-bag-ccy'],['w-transport','w-transport-ccy']];
-  let total = 0;
-  fields.forEach(([inp,sel]) => { total += toDisplay(parseFloat($(inp).value)||0, $(sel).value); });
-  $('w-cost-total').textContent = total > 0 ? `Total cost: ${sym()}${Math.round(total).toLocaleString()} ${displayCcy}` : '';
+  // Always show total in USD for accuracy
+  let totalGEL = 0;
+  fields.forEach(([inp,sel]) => {
+    const amt = parseFloat($(inp).value)||0;
+    const ccy = $(sel).value;
+    totalGEL += ccy==='USD' ? amt*rates.USD_GEL : ccy==='EUR' ? amt*rates.EUR_GEL : amt;
+  });
+  const totalUSD = Math.round(totalGEL / rates.USD_GEL);
+  $('w-cost-total').textContent = totalUSD > 0 ? `Total cost: $${totalUSD} USD` : '';
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -822,6 +847,25 @@ let currentPage = 'overview';
 let db = { watches:[], sales:[], expenses:[], cashflow:[] };
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const COLORS = ['#18181a','#7a5f22','#1a7a4a','#1a5fa8','#c0392b','#7b3fa0','#0e7490','#b45309','#374151'];
+
+// Sort state
+let salesSort = {col:'date', dir:-1};   // -1 = desc, 1 = asc
+let expSort   = {col:'date', dir:-1};
+
+function sortSales(col){
+  if(salesSort.col===col) salesSort.dir*=-1; else {salesSort.col=col;salesSort.dir=1;}
+  renderSales();
+}
+function sortExp(col){
+  if(expSort.col===col) expSort.dir*=-1; else {expSort.col=col;expSort.dir=1;}
+  renderExpenses();
+}
+function sortArrow(state,col){
+  if(state.col!==col) return '<span style="color:#ccc;font-size:10px;margin-left:3px">⇅</span>';
+  return state.dir===1
+    ? '<span style="font-size:10px;margin-left:3px">↑</span>'
+    : '<span style="font-size:10px;margin-left:3px">↓</span>';
+}
 
 // ─────────────────────────────────────────────────────────────
 // GOOGLE SHEETS API
@@ -851,7 +895,6 @@ function coerce(obj){
     else o[k]=obj[k];
   }
   // Ensure currency fields always have a value — default to USD not displayCcy
-  // This is critical: if we default to displayCcy, switching currency breaks conversion
   if(!o.ccy) o.ccy='USD';
   if(!o.priceCcy) o.priceCcy='USD';
   if(!o.costCcy) o.costCcy='USD';
@@ -859,6 +902,12 @@ function coerce(obj){
   if(!o.boxCostCcy) o.boxCostCcy='USD';
   if(!o.bagCostCcy) o.bagCostCcy='USD';
   if(!o.transportCostCcy) o.transportCostCcy='USD';
+  // Fix watches where total cost was incorrectly stored in non-USD
+  // If all component costs are in USD, recalculate total cost in USD
+  if(o.watchCost && o.watchCostCcy==='USD' && o.costCcy!=='USD'){
+    const recalc = (o.watchCost||0) + (o.boxCost||0) + (o.bagCost||0) + (o.transportCost||0);
+    if(recalc > 0){ o.cost = Math.round(recalc); o.costCcy = 'USD'; }
+  }
   return o;
 }
 async function loadAll(){ showLoading('Loading your data…');try{const[w,s,e,c]=await Promise.all([sheetGet('watches'),sheetGet('sales'),sheetGet('expenses'),sheetGet('cashflow')]);db.watches=w.map(coerce);db.sales=s.map(coerce);db.expenses=e.map(coerce);db.cashflow=c.map(coerce);setSyncStatus('ok','Synced');}catch(e){setSyncStatus('err','Error');alert('Could not load data: '+e.message);}hideLoading(); }
@@ -1048,18 +1097,27 @@ async function saveWatch(){
   const qty=parseInt($('w-qty').value);
   if(!name||!watchCost||isNaN(qty))return alert('Name, watch cost and qty required.');
   const boxCost=parseFloat($('w-box').value)||0,bagCost=parseFloat($('w-bag').value)||0,transportCost=parseFloat($('w-transport').value)||0;
-  // total cost in displayCcy
-  const cost=Math.round(
-    toDisplay(watchCost,$('w-cost-ccy').value)+toDisplay(boxCost,$('w-box-ccy').value)+
-    toDisplay(bagCost,$('w-bag-ccy').value)+toDisplay(transportCost,$('w-transport-ccy').value)
-  );
+  // Always store total cost in USD as base — convert each component to USD first
+  const toUSD=(amount,ccy)=>{
+    if(ccy==='USD')return amount;
+    let gel;
+    if(ccy==='GEL')gel=amount;
+    else gel=amount*rates.EUR_GEL;
+    return gel/rates.USD_GEL;
+  };
+  const costUSD=
+    toUSD(watchCost,$('w-cost-ccy').value)+
+    toUSD(boxCost,$('w-box-ccy').value)+
+    toUSD(bagCost,$('w-bag-ccy').value)+
+    toUSD(transportCost,$('w-transport-ccy').value);
+  const cost=Math.round(costUSD*100)/100;
   const eid=String($('wid').value);
   const w={id:eid||uid(),name,ref:$('w-ref').value.trim(),
     watchCost,watchCostCcy:$('w-cost-ccy').value,
     boxCost,boxCostCcy:$('w-box-ccy').value,
     bagCost,bagCostCcy:$('w-bag-ccy').value,
     transportCost,transportCostCcy:$('w-transport-ccy').value,
-    costCcy:displayCcy,cost,
+    costCcy:'USD',cost,
     price:parseFloat($('w-price').value)||0,priceCcy:$('w-price-ccy').value,
     qty,alert:parseInt($('w-alert').value)||2};
   try{if(eid){await apiUpdate('watches',eid,w);db.watches=db.watches.map(x=>String(x.id)===eid?w:x);}else{await apiInsert('watches',w);db.watches.push(w);}closeModal('m-watch');renderWatches();}
@@ -1143,9 +1201,39 @@ function renderSales(){
   $('s-rev').textContent=fmtAbs(rev);$('s-units').textContent=units;
   $('s-profit').textContent=fmtAbs(profit);$('s-profit').className='stat-val '+(profit>=0?'c-green':'c-red');
   $('s-margin').textContent=margin+'%';
+  // Update sort arrows
+  ['date','watch','qty','revenue','cost','profit','margin','source'].forEach(col=>{
+    const el=$('sarr-'+col);
+    if(el) el.innerHTML=salesSort.col===col?(salesSort.dir===1?'↑':'↓'):'<span style="color:#ccc">⇅</span>';
+  });
   const q=($('s-search')||{}).value||'';
-  const srcB={'Instagram':'bb','Meta Ads':'bb','Facebook':'bb','Website':'bg','Walk-in':'bgl','Referral':'bg','WhatsApp':'bg'};
-  const f=[...db.sales].filter(s=>s.watchName.toLowerCase().includes(q.toLowerCase())).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const srcB={'Instagram':'bb','Meta Ads':'bb','Facebook':'bb','Website':'bg','Walk-in':'bgl','Referral':'bg','WhatsApp':'bg','Casio Store':'bgl','Close People':'bg','Personal':'bgr','Gift':'bgr'};
+  let f=[...db.sales].filter(s=>s.watchName.toLowerCase().includes(q.toLowerCase()));
+  // Apply sort
+  f.sort((a,b)=>{
+    const pc='USD',cc='USD';
+    const aRev=toDisplay(a.price*a.qty,a.priceCcy||pc);
+    const bRev=toDisplay(b.price*b.qty,b.priceCcy||pc);
+    const aCost=toDisplay(a.cost*a.qty,a.costCcy||cc);
+    const bCost=toDisplay(b.cost*b.qty,b.costCcy||cc);
+    const aProfit=aRev-aCost, bProfit=bRev-bCost;
+    const aMargin=aRev>0?aProfit/aRev:0, bMargin=bRev>0?bProfit/bRev:0;
+    let av,bv;
+    switch(salesSort.col){
+      case 'date':    av=a.date||'';    bv=b.date||'';    break;
+      case 'watch':   av=a.watchName;   bv=b.watchName;   break;
+      case 'qty':     av=a.qty;         bv=b.qty;         break;
+      case 'revenue': av=aRev;          bv=bRev;          break;
+      case 'cost':    av=aCost;         bv=bCost;         break;
+      case 'profit':  av=aProfit;       bv=bProfit;       break;
+      case 'margin':  av=aMargin;       bv=bMargin;       break;
+      case 'source':  av=a.source||'';  bv=b.source||'';  break;
+      default:        av=a.date||'';    bv=b.date||'';
+    }
+    if(av<bv) return -salesSort.dir;
+    if(av>bv) return salesSort.dir;
+    return 0;
+  });
   if(!f.length){$('s-empty').style.display='';$('sales-tbl').innerHTML='';return;}
   $('s-empty').style.display='none';
   $('sales-tbl').innerHTML=f.map(s=>{
@@ -1228,7 +1316,26 @@ function renderExpenses(){
   const mks=Object.keys(mmap).sort();
   mkChart('ch-exp-bar',{type:'bar',data:{labels:mks.map(m=>MONTHS[parseInt(m.slice(5))-1]),datasets:[{label:'Expenses',data:mks.map(m=>Math.round(mmap[m])),backgroundColor:'rgba(192,57,43,.55)',borderRadius:4}]},options:barOpts()});
   const q=($('e-search')||{}).value||'';
-  const f=[...exps].filter(e=>(e.desc+e.cat).toLowerCase().includes(q.toLowerCase())).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  // Update sort arrows
+  ['date','desc','cat','amount','type'].forEach(col=>{
+    const el=$('earr-'+col);
+    if(el) el.innerHTML=expSort.col===col?(expSort.dir===1?'↑':'↓'):'<span style="color:#ccc">⇅</span>';
+  });
+  let f=[...exps].filter(e=>(e.desc+e.cat).toLowerCase().includes(q.toLowerCase()));
+  f.sort((a,b)=>{
+    let av,bv;
+    switch(expSort.col){
+      case 'date':   av=a.date||'';   bv=b.date||'';   break;
+      case 'desc':   av=a.desc||'';   bv=b.desc||'';   break;
+      case 'cat':    av=a.cat||'';    bv=b.cat||'';    break;
+      case 'amount': av=toDisplay(a.amount,a.ccy||'USD'); bv=toDisplay(b.amount,b.ccy||'USD'); break;
+      case 'type':   av=a.recur||'';  bv=b.recur||'';  break;
+      default:       av=a.date||'';   bv=b.date||'';
+    }
+    if(av<bv) return -expSort.dir;
+    if(av>bv) return expSort.dir;
+    return 0;
+  });
   if(!f.length){$('e-empty').style.display='';$('expenses-tbl').innerHTML='';return;}
   $('e-empty').style.display='none';
   $('expenses-tbl').innerHTML=f.map(e=>{
